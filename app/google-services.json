@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "799401430687",
+    "project_id": "alwaysbewithyou-54709",
+    "storage_bucket": "alwaysbewithyou-54709.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:799401430687:android:914e39fe6739274999dcaa",
+        "android_client_info": {
+          "package_name": "com.example.alwaysbewithyou"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvMpGJdYboOvjljMwi86sOR9NPpaoJ4Lo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
