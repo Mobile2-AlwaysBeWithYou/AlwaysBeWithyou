@@ -66,6 +66,7 @@ dependencies {
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.naver.map.compose)
     implementation(libs.accompanist.permissions)
+    implementation(libs.accessibility.test.framework)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
