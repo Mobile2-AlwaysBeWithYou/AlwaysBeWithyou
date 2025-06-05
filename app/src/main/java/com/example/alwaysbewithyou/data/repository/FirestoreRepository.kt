@@ -15,7 +15,6 @@ object FirestoreRepository {
     fun createUser(user: User, onComplete: () -> Unit) {
         db.collection("users").document(user.id).set(user)
             .addOnSuccessListener {
-                Log.d("Firestore", "User created!")
                 onComplete()
             }
             .addOnFailureListener {
@@ -58,7 +57,6 @@ object FirestoreRepository {
         return bytes.joinToString("") { "%02x".format(it) }
     }
 
-    // --- 복약 알람 관련 ---
 
     fun addPillAlarm(userId: String, alarm: PillAlarm) {
         db.collection("users").document(userId)
@@ -87,7 +85,6 @@ object FirestoreRepository {
             .delete()
     }
 
-    // --- 알림 관련 ---
 
     fun addNotification(userId: String, notification: Notification) {
         db.collection("users").document(userId)
@@ -104,7 +101,6 @@ object FirestoreRepository {
             }
     }
 
-    // --- 안부 확인 관련 ---
 
     fun addCheckIn(userId: String, checkIn: CheckIn) {
         db.collection("users").document(userId)
@@ -121,7 +117,6 @@ object FirestoreRepository {
             }
     }
 
-    // --- 상담 관련 ---
 
     fun requestConsultation(userId: String, consultation: Consultation) {
         db.collection("users").document(userId)
@@ -144,7 +139,6 @@ object FirestoreRepository {
             }
     }
 
-    // --- 사용자 설정 관련 ---
 
     fun setUserSettings(userId: String, settings: Settings) {
         db.collection("users").document(userId)
@@ -160,7 +154,6 @@ object FirestoreRepository {
             }
     }
 
-    // --- 보호자-피보호자 연결 관련 ---
 
     fun linkGuardianWard(userId: String, relation: GuardianWard) {
         db.collection("users").document(userId)
