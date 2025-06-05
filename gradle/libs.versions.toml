@@ -10,6 +10,9 @@ activityCompose = "1.10.1"
 composeBom = "2024.04.01"
 firebaseAuthKtx = "23.2.1"
 navigationCompose = "2.9.0"
+naverMapCompose = "1.8.0"
+secretsGradlePlugin = "2.0.1"
+accompanistPermissions = "0.37.3"
 firebaseFirestoreKtx = "25.1.4"
 
 [libraries]
@@ -30,9 +33,12 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
+naver-map-compose = { group = "io.github.fornewid", name = "naver-map-compose", version.ref = "naverMapCompose" }
+accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanistPermissions" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+secrets-gradle-plugin = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version.ref="secretsGradlePlugin"}
 
