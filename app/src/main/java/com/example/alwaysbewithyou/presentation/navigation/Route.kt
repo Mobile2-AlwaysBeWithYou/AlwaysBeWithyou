@@ -15,6 +15,8 @@ sealed class Route(
 
     data object Map: Route(route = "map")
 
+    data object MapList: Route(route = "mapList")
+
     data object Call: Route(route = "call")
 
     data object Guardian: Route(route = "guardian")
