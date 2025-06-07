@@ -150,7 +150,7 @@ fun NavGraph(
         }
 
         composable(route = Route.Call.route) {
-            CallScreen()
+            CallScreen(navController = navController)
         }
 
         composable(route = Route.Guardian.route) {
