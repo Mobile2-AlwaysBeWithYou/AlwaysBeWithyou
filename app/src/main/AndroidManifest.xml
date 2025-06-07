@@ -20,6 +20,10 @@
             android:name="com.naver.maps.map.NCP_KEY_ID"
             android:value="${NAVER_MAP_CLIENT_ID}" />
 
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${API_KEY}" />
+
         <activity
             android:name=".presentation.main.MainActivity"
             android:exported="true"
