@@ -16,6 +16,7 @@ import com.example.alwaysbewithyou.presentation.map.tools.MapViewModel
 import com.example.alwaysbewithyou.presentation.onboarding.SignUpScreen
 import com.example.alwaysbewithyou.presentation.onboarding.SplashScreen
 import com.example.alwaysbewithyou.presentation.setting.MyPageScreen
+import com.example.alwaysbewithyou.presentation.setting.NotificationSettingScreen
 
 @Composable
 fun NavGraph(
@@ -87,7 +88,15 @@ fun NavGraph(
         }
 
         composable(route = Route.Setting.route) {
-            MyPageScreen()
+            MyPageScreen(
+                navController = navController
+            )
+        }
+
+        composable(route = Route.NotificationSetting.route) {
+            NotificationSettingScreen(
+                navController = navController
+            )
         }
 
         composable(route = Route.HomeDetail.route) {

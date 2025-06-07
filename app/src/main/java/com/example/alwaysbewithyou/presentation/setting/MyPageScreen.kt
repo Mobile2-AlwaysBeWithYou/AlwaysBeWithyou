@@ -33,15 +33,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.alwaysbewithyou.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyPageScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navController: NavHostController
 ) {
     Column(
         modifier = modifier
@@ -59,7 +60,7 @@ fun MyPageScreen(
                 )
             },
             navigationIcon = {
-                IconButton(onClick = {}) {
+                IconButton(onClick = {navController.popBackStack()}) {
                     Image(
                         painter = painterResource(R.drawable.arrow_back),
                         contentDescription = "arrow back"
@@ -152,7 +153,7 @@ fun MyPageScreen(
         ) {
             SettingsItem(
                 title = "알림",
-                onClick = { /* Handle 알림 click */ }
+                onClick = {navController.navigate("notificationSetting")}
             )
 
             SettingsItem(
@@ -219,10 +220,4 @@ fun SettingsItem(
 
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun SettingsScreenPreview() {
-    MyPageScreen()
 }
