@@ -1,6 +1,8 @@
 package com.example.alwaysbewithyou.presentation.map
 
 import android.Manifest
+import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,17 +17,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items // items 임포트 확인
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,16 +40,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.alwaysbewithyou.presentation.map.tools.GooglePlacesApiService.PlaceResult // PlaceResult 임포트 확인
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import com.example.alwaysbewithyou.presentation.map.tools.GooglePlacesApiService.PlaceResult
 import com.example.alwaysbewithyou.presentation.map.tools.MapViewModel
 import com.example.alwaysbewithyou.presentation.map.tools.SearchState
+import com.example.alwaysbewithyou.presentation.navigation.Route
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import kotlin.collections.sortedByDescending
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties as GoogleMapProperties
 import com.google.maps.android.compose.MapUiSettings as GoogleMapUiSettings
@@ -53,11 +66,30 @@ import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberMarkerState
 
+fun fetchPlaceDetails(
+    context: Context,
+    placeId: String,
+    onSuccess: (Place) -> Unit,
+    onError: (Exception) -> Unit
+) {
+    val placesClient = Places.createClient(context)
+    val placeFields = listOf(
+        Place.Field.ID,
+        Place.Field.ADDRESS
+    )
+    val request = FetchPlaceRequest.newInstance(placeId, placeFields)
+
+    placesClient.fetchPlace(request)
+        .addOnSuccessListener { response -> onSuccess(response.place) }
+        .addOnFailureListener { exception -> onError(exception) }
+}
+
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MapListScreen(
     viewModel: MapViewModel,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    navController: NavHostController
 ) {
     var sortType by remember { mutableStateOf("거리순") }
 
@@ -116,7 +148,9 @@ fun MapListScreen(
                             state = rememberMarkerState(position = position),
                             title = place.name ?: "이름 없음",
                             snippet = place.formattedAddress ?: "주소 없음"
+
                         )
+                        Log.d("MapDebug", "Address: ${place.formattedAddress}")
                     }
                 }
             }
@@ -170,8 +204,10 @@ fun MapListScreen(
                     } else {
                         LazyColumn(modifier = Modifier.fillMaxSize()) {
                             items(sortedPlaces) { place ->
-                                PlaceListItem(place = place) {
-                                    // 장소 클릭 시 동작 (예: 상세 화면으로 이동)
+                                PlaceListItem(place = place) { selectedPlace ->
+                                    selectedPlace.placeId?.let { placeId ->
+                                        navController.navigate(Route.MapDetail.createRoute(placeId))
+                                    }
                                 }
                             }
                         }
@@ -194,7 +230,29 @@ fun MapListScreen(
 }
 
 @Composable
-fun PlaceListItem(place: PlaceResult, onClick: (PlaceResult) -> Unit) {
+fun PlaceListItem(
+    place: PlaceResult,
+    onClick: (PlaceResult) -> Unit
+) {
+    val context = LocalContext.current
+    var detailedAddress by remember { mutableStateOf<String?>(null) }
+
+    // placeId로 상세 주소 요청
+    LaunchedEffect(place.placeId) {
+        place.placeId?.let { placeId ->
+            fetchPlaceDetails(
+                context = context,
+                placeId = placeId,
+                onSuccess = { detailedPlace ->
+                    detailedAddress = detailedPlace.address
+                },
+                onError = { error ->
+                    Log.e("PlaceListItem", "주소 가져오기 실패: ${error.message}")
+                }
+            )
+        }
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -202,17 +260,34 @@ fun PlaceListItem(place: PlaceResult, onClick: (PlaceResult) -> Unit) {
             .clickable { onClick(place) }
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = place.name ?: "이름 없음")
+            Text(
+                text = place.name ?: "",
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
+            )
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = place.formattedAddress ?: "주소 없음")
-            Spacer(modifier = Modifier.height(4.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = "평점: ${place.rating ?: "N/A"}", modifier = Modifier.weight(1f))
-                Text(text = "리뷰: ${place.userRatingsTotal ?: 0}개")
+            Text(
+                text = detailedAddress ?: "주소 불러오는 중...",
+                fontSize = 14.sp,
+                color = Color.Gray
+            )
+            place.rating?.let { rating ->
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Filled.Star,
+                        contentDescription = "평점 별",
+                        tint = Color.Red,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text = "$rating", fontSize = 14.sp, color = Color.Gray)
+                }
             }
         }
     }
 }
+
 
 // SortToggle 컴포저블
 @Composable
