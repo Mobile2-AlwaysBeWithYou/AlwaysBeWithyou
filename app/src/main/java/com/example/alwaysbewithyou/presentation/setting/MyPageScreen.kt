@@ -163,7 +163,7 @@ fun MyPageScreen(
 
             SettingsItem(
                 title = "공지사항",
-                onClick = { /* Handle 공지사항 click */ }
+                onClick = {navController.navigate("announcement")}
             )
 
             SettingsItem(

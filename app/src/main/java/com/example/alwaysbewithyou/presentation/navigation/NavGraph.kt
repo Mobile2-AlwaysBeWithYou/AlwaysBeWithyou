@@ -15,6 +15,7 @@ import com.example.alwaysbewithyou.presentation.map.MapScreen
 import com.example.alwaysbewithyou.presentation.map.tools.MapViewModel
 import com.example.alwaysbewithyou.presentation.onboarding.SignUpScreen
 import com.example.alwaysbewithyou.presentation.onboarding.SplashScreen
+import com.example.alwaysbewithyou.presentation.setting.AnnouncementScreen
 import com.example.alwaysbewithyou.presentation.setting.FontSettingScreen
 import com.example.alwaysbewithyou.presentation.setting.MyPageScreen
 import com.example.alwaysbewithyou.presentation.setting.NotificationSettingScreen
@@ -102,6 +103,12 @@ fun NavGraph(
 
         composable(route = Route.FontSetting.route) {
             FontSettingScreen(
+                navController = navController
+            )
+        }
+
+        composable(route = Route.Announcement.route) {
+            AnnouncementScreen(
                 navController = navController
             )
         }
