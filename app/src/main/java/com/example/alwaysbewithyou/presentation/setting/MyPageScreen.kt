@@ -158,7 +158,7 @@ fun MyPageScreen(
 
             SettingsItem(
                 title = "글씨크기",
-                onClick = { /* Handle 글씨크기 click */ }
+                onClick = {navController.navigate("fontSetting")}
             )
 
             SettingsItem(

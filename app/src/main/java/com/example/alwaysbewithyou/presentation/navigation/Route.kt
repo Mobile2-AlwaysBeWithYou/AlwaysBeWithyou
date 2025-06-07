@@ -24,4 +24,6 @@ sealed class Route(
     data object Setting: Route(route = "setting")
 
     data object NotificationSetting: Route(route = "notificationSetting")
+
+    data object FontSetting: Route(route = "fontSetting")
 }

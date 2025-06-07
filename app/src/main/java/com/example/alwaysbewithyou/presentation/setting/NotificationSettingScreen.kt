@@ -36,8 +36,8 @@ import com.example.alwaysbewithyou.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationSettingScreen(
-    modifier: Modifier = Modifier,
-    navController: NavHostController
+        modifier: Modifier = Modifier,
+        navController: NavHostController
     ) {
     var timeNotification by remember { mutableStateOf(false) }
     var studyNotification by remember { mutableStateOf(false) }
@@ -53,7 +53,7 @@ fun NotificationSettingScreen(
         TopAppBar(
             title = {
                 Text(
-                    text = "설정",
+                    text = "알림",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color.Black
