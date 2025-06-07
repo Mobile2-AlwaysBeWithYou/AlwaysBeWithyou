@@ -1,4 +1,5 @@
 import org.gradle.kotlin.dsl.implementation
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -20,6 +21,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "API_KEY", getLocalProperty("API_KEY"))
     }
 
     buildTypes {
@@ -53,6 +56,9 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
+    implementation("com.google.maps.android:maps-compose:4.3.0")
+    implementation("com.google.android.libraries.places:places:3.4.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -77,4 +83,15 @@ dependencies {
 secrets {
     propertiesFileName = "secrets.properties"
     defaultPropertiesFileName = "local.defaults.properties"
+}
+
+fun getLocalProperty(propertyName: String): String {
+    val properties = Properties()
+    val localPropsFile = rootProject.file("local.defaults.properties")
+    if (localPropsFile.exists()) {
+        properties.load(localPropsFile.inputStream())
+    } else {
+        throw GradleException("local.defaults.properties file not found!")
+    }
+    return properties.getProperty(propertyName) ?: throw GradleException("Property '$propertyName' not found in local.defaults.properties")
 }

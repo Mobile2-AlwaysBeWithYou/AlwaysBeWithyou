@@ -33,18 +33,19 @@ import androidx.lifecycle.viewmodel.compose.viewModel // ViewModel 사용을 위
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import com.naver.maps.map.compose.ExperimentalNaverMapApi
-import com.naver.maps.map.compose.LocationTrackingMode
-import com.naver.maps.map.compose.MapProperties
-import com.naver.maps.map.compose.MapUiSettings
-import com.naver.maps.map.compose.NaverMap
-import com.naver.maps.map.compose.rememberCameraPositionState
-import com.naver.maps.map.compose.rememberFusedLocationSource
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties as GoogleMapProperties
+import com.google.maps.android.compose.MapUiSettings as GoogleMapUiSettings
+import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.CameraPositionState
 import androidx.compose.runtime.collectAsState // StateFlow를 Compose 상태로 변환
 import com.example.alwaysbewithyou.presentation.map.tools.MapViewModel
 import com.example.alwaysbewithyou.presentation.map.tools.SearchState
+import com.naver.maps.map.compose.rememberFusedLocationSource
 
-@OptIn(ExperimentalPermissionsApi::class, ExperimentalNaverMapApi::class)
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MapScreen(
     modifier: Modifier = Modifier,
@@ -61,9 +62,11 @@ fun MapScreen(
     LaunchedEffect(Unit) { permissionState.launchMultiplePermissionRequest() }
     val granted = permissionState.permissions.any { it.status.isGranted }
 
-    // 지도 상태
-    val cameraPositionState = rememberCameraPositionState()
-    val locationSource = rememberFusedLocationSource()
+    // 카메라 상태
+    val seoulCityHall = LatLng(37.5665, 126.9770) // 서울 시청 위경도
+    val cameraPositionState: CameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(seoulCityHall, 15f) // 초기 줌 레벨 15
+    }
 
     // ViewModel에서 검색어와 검색 결과 상태를 가져옴
     val searchText by viewModel.searchQuery.collectAsState()
@@ -85,16 +88,16 @@ fun MapScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            placeholder = { Text("장소 검색 (예: 강남역 맛집)") },
+            placeholder = { Text("장소 검색") },
             singleLine = true,
             trailingIcon = {
-                IconButton(onClick = { viewModel.searchLocalPlaces(searchText) }) { // 검색 버튼 클릭 시 API 호출
+                IconButton(onClick = { viewModel.searchPlaces(searchText) }) {
                     Icon(Icons.Default.Search, contentDescription = "검색")
                 }
             },
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search), // 키보드 액션을 검색으로
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(onSearch = {
-                viewModel.searchLocalPlaces(searchText) // 키보드에서 검색 버튼 누를 시 API 호출
+                viewModel.searchPlaces(searchText)
             })
         )
 
@@ -105,23 +108,25 @@ fun MapScreen(
                 .fillMaxWidth()
         ) {
             if (granted) {
-                NaverMap(
-                    modifier = Modifier.fillMaxSize(), // 지도는 전체 공간 사용
+                GoogleMap(
+                    modifier = Modifier.fillMaxSize(),
                     cameraPositionState = cameraPositionState,
-                    locationSource = locationSource,
-                    properties = MapProperties(
-                        locationTrackingMode = LocationTrackingMode.Face
+                    properties = GoogleMapProperties(
+                        isMyLocationEnabled = true // 내 위치 표시 활성화
+
                     ),
-                    uiSettings = MapUiSettings(
-                        isLocationButtonEnabled = true
+                    uiSettings = GoogleMapUiSettings(
+                        myLocationButtonEnabled = true, // 내 위치 버튼
+                        zoomControlsEnabled = false
                     )
-                )
+                ) {
+
+                }
             } else {
-                NaverMap(
+                GoogleMap(
                     modifier = Modifier.fillMaxSize(),
                     cameraPositionState = cameraPositionState
                 )
-                // 권한이 없을 때 지도 위에 메시지 표시 (선택 사항)
                 Text(
                     text = "위치 권한이 필요합니다.",
                     color = Color.Red,
