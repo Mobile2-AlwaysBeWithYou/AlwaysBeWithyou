@@ -1,5 +1,8 @@
 package com.example.alwaysbewithyou.presentation.map.tools
 
+import android.R.attr.apiKey
+import android.content.Context
+import android.content.pm.PackageManager
 import com.example.alwaysbewithyou.presentation.map.tools.GooglePlacesApiService
 import com.example.alwaysbewithyou.presentation.map.tools.GooglePlacesApiService.PlaceResult
 import kotlinx.coroutines.Dispatchers
@@ -8,8 +11,17 @@ import timber.log.Timber
 
 class PlaceRepository(
     private val apiService: GooglePlacesApiService,
-    private val apiKey: String
+    private val context: Context
 ) {
+    private val apiKey: String by lazy {
+        val applicationInfo = context.packageManager.getApplicationInfo(
+            context.packageName,
+            PackageManager.GET_META_DATA
+        )
+        applicationInfo.metaData.getString("com.google.android.geo.API_KEY")
+            ?: throw IllegalStateException("API_KEY not found in AndroidManifest.xml")
+    }
+
     suspend fun getPlaceDetails(placeId: String): PlaceResult? {
         return withContext(Dispatchers.IO) {
             try {
@@ -55,17 +67,16 @@ class PlaceRepository(
         latitude: Double,
         longitude: Double,
         query: String?,
-        radius: Int // MapViewModel에서 50000으로 넘겨주므로 추가
+        radius: Int
     ): List<PlaceResult> {
         return withContext(Dispatchers.IO) {
             try {
                 val location = "$latitude,$longitude"
                 val response = apiService.nearbySearch(
                     location = location,
-                    radius = radius, // 반경 파라미터 사용
-                    keyword = query, // 검색 키워드가 있다면 사용
+                    radius = radius,
+                    keyword = query,
                     apiKey = apiKey
-                    // type 등 추가 파라미터 필요시 여기에 추가
                 )
 
                 if (response.status == "OK") {
