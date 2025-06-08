@@ -24,30 +24,26 @@ class MapViewModel(
     private val placeRepository: PlaceRepository // PlaceRepository 주입
 ) : ViewModel() {
 
-    // 기본 생성자
-    constructor() : this(
-        PlaceRepository(
-            RetrofitClient.googlePlacesApiService,
-            BuildConfig.API_KEY
-        )
-    )
-
     private val _searchResults = MutableStateFlow<SearchState>(SearchState.Idle)
     val searchResults: StateFlow<SearchState> = _searchResults.asStateFlow()
 
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
+    private val _currentLocation = MutableStateFlow<android.location.Location?>(null)
+    val currentLocation: StateFlow<android.location.Location?> = _currentLocation.asStateFlow()
+
     fun updateSearchQuery(query: String) {
         _searchQuery.value = query
     }
 
-    /**
-     * 텍스트 쿼리를 기반으로 장소를 검색합니다 (검색바 입력용).
-     * @param query 검색어
-     * @param currentLocation 현재 위치 (선택 사항). 제공되면 주변 검색을 수행합니다.
-     */
-    fun searchPlaces(query: String, currentLocation: LatLng? = null) {
+    fun updateCurrentLocation(location: android.location.Location?) {
+        _currentLocation.value = location
+    }
+
+    fun searchPlaces(query: String) {
+        val currentLocation = _currentLocation.value
+
         if (query.isBlank() && currentLocation == null) { // 검색어 없고 위치도 없으면 Idle
             _searchResults.value = SearchState.Idle
             return
@@ -81,7 +77,7 @@ class MapViewModel(
         }
     }
 
-
+    // gps 주변으로 검색 구현해야 함
     fun searchPlacesNearby(latitude: Double, longitude: Double, query: String? = null) {
 
     }

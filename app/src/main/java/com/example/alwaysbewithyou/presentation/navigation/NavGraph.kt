@@ -3,6 +3,7 @@ package com.example.alwaysbewithyou.presentation.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -10,7 +11,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.alwaysbewithyou.BuildConfig
 import com.example.alwaysbewithyou.LoginScreen
 import com.example.alwaysbewithyou.presentation.call.CallScreen
 import com.example.alwaysbewithyou.presentation.guardian.GuardianScreen
@@ -35,7 +35,7 @@ fun NavGraph(
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
-    val mapViewModel: MapViewModel = viewModel()
+    val context = LocalContext.current
 
     val retrofit = remember {
         Retrofit.Builder()
@@ -45,7 +45,19 @@ fun NavGraph(
     }
 
     val googlePlacesApiService = remember { retrofit.create(GooglePlacesApiService::class.java) }
-    val placeRepository = remember { PlaceRepository(googlePlacesApiService, BuildConfig.API_KEY) }
+    val placeRepository = remember { PlaceRepository(googlePlacesApiService, context) }
+
+    val mapViewModel: MapViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                if (modelClass.isAssignableFrom(MapViewModel::class.java)) {
+                    @Suppress("UNCHECKED_CAST")
+                    return MapViewModel(placeRepository) as T
+                }
+                throw IllegalArgumentException("Unknown ViewModel class")
+            }
+        }
+    )
 
     NavHost(
         navController = navController,
