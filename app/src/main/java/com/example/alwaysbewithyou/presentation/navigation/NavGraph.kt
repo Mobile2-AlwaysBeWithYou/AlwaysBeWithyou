@@ -50,7 +50,7 @@ fun NavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = Route.Map.route
+        startDestination = Route.Splash.route
     ) {
         composable(route = Route.Splash.route) {
             SplashScreen(
