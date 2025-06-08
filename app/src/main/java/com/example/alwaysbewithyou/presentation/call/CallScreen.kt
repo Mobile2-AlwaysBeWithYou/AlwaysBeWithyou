@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -66,7 +67,8 @@ fun CallScreen(
                 MenuCard(
                     title = "상담 신청",
                     subtitle = "편한 시간대를 선택",
-                    onClick = { navController.navigate("schedule") }
+                    onClick = { navController.navigate("schedule") },
+                    height = 200.dp
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -74,7 +76,8 @@ fun CallScreen(
 
                 MenuCard(
                     title = "상담 기록 조회",
-                    onClick = { navController.navigate("record") }
+                    onClick = { navController.navigate("record") },
+                    height = 100.dp
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -82,7 +85,8 @@ fun CallScreen(
                 MenuCard(
                     title = "전화 요청",
                     subtitle = "사랑안는집핑 연결",
-                    onClick = { }
+                    onClick = { },
+                    height = 200.dp
                 )
             }
         }
@@ -93,7 +97,8 @@ fun CallScreen(
 fun MenuCard(
     title: String,
     subtitle: String? = null,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    height: Dp
 ) {
     Card(
         modifier = Modifier

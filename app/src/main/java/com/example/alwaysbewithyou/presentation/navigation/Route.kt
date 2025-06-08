@@ -34,4 +34,6 @@ sealed class Route(
     data object FontSetting: Route(route = "fontSetting")
 
     data object Announcement: Route(route = "announcement")
+
+    data object Schedule: Route(route = "schedule")
 }
