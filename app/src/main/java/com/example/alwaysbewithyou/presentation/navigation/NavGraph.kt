@@ -10,6 +10,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.alwaysbewithyou.BuildConfig
 import com.example.alwaysbewithyou.LoginScreen
 import com.example.alwaysbewithyou.presentation.call.CallScreen
 import com.example.alwaysbewithyou.presentation.guardian.GuardianScreen
@@ -17,12 +18,17 @@ import com.example.alwaysbewithyou.presentation.home.HomeScreen
 import com.example.alwaysbewithyou.presentation.map.MapDetailScreen
 import com.example.alwaysbewithyou.presentation.map.MapListScreen
 import com.example.alwaysbewithyou.presentation.map.MapScreen
+import com.example.alwaysbewithyou.presentation.map.tools.GooglePlacesApiService
+import com.example.alwaysbewithyou.presentation.map.tools.MapDetailViewModel
 import com.example.alwaysbewithyou.presentation.map.tools.MapViewModel
+import com.example.alwaysbewithyou.presentation.map.tools.PlaceRepository
 import com.example.alwaysbewithyou.presentation.onboarding.SignUpScreen
 import com.example.alwaysbewithyou.presentation.onboarding.SplashScreen
 import com.example.alwaysbewithyou.presentation.setting.AnnouncementScreen
 import com.example.alwaysbewithyou.presentation.setting.FontSettingScreen
 import com.example.alwaysbewithyou.presentation.setting.MyPageScreen
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 @Composable
 fun NavGraph(
@@ -137,7 +143,12 @@ fun NavGraph(
 
         composable(route = Route.Setting.route) {
             MyPageScreen(
-
+                navController = navController,
+                onLogout = {
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(0)  // 백스택 제거
+                    }
+                }
             )
         }
 
