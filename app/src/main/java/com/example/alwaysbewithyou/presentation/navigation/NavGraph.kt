@@ -137,25 +137,7 @@ fun NavGraph(
 
         composable(route = Route.Setting.route) {
             MyPageScreen(
-                navController = navController
-            )
-        }
 
-        composable(route = Route.NotificationSetting.route) {
-            NotificationSettingScreen(
-                navController = navController
-            )
-        }
-
-        composable(route = Route.FontSetting.route) {
-            FontSettingScreen(
-                navController = navController
-            )
-        }
-
-        composable(route = Route.Announcement.route) {
-            AnnouncementScreen(
-                navController = navController
             )
         }
 

@@ -37,12 +37,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.alwaysbewithyou.R
+import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyPageScreen(
     modifier: Modifier = Modifier,
-    navController: NavHostController
 ) {
     Column(
         modifier = modifier
@@ -178,7 +178,10 @@ fun MyPageScreen(
 
             SettingsItem(
                 title = "로그아웃",
-                onClick = { /* Handle 로그아웃 click */ }
+                onClick = {
+                    FirebaseAuth.getInstance().signOut()
+                    onLogout()
+                }
             )
         }
     }
@@ -220,4 +223,5 @@ fun SettingsItem(
 
         }
     }
+
 }
