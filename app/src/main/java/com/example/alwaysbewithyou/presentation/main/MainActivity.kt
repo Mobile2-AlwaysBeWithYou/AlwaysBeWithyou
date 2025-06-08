@@ -18,10 +18,6 @@ import android.app.AlertDialog
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.navigation.compose.rememberNavController
-import com.example.alwaysbewithyou.R
-import com.example.alwaysbewithyou.ui.theme.AlwaysBeWithYouTheme
-import java.text.SimpleDateFormat
-import java.util.*
 
 class MainActivity : ComponentActivity() {
 
@@ -29,37 +25,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-
-        //알림 권한 요청
-        requestPermissionLauncher = registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted ->
-            if (isGranted) {
-                println("알림 권한이 부여")
-            } else {
-                println("알림 권한이 거부")
-            }
-        }
-
-        // Android 13+ 알림 권한 신청
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED
-            ) {
-                requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
-            }
-        }
-
-        // 알림 채널 생성
-        createNotificationChannel()
-
-        // 알림 이동할 때 확인용 (test용)
-        if (intent?.getBooleanExtra("fromNotification", false) == true) {
-            showConfirmationDialog()
-        }
-
-        // main 화면
         setContent {
             AlwaysBeWithYouTheme {
                 val navController = rememberNavController()
