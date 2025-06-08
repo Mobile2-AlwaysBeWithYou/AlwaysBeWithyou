@@ -1,11 +1,13 @@
 package com.example.alwaysbewithyou.presentation.call
 
+import android.R.attr.fontWeight
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -103,7 +105,8 @@ fun MenuCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() },
+            .clickable { onClick() }
+            .height(height),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFEFF5FF)),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         shape = RoundedCornerShape(8.dp)
@@ -115,17 +118,20 @@ fun MenuCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
+            Column(
+                modifier = Modifier.fillMaxHeight(),
+                verticalArrangement = Arrangement.Center
+            ) {
                 Text(
                     text = title,
-                    fontSize = 16.sp,
+                    fontSize = 30.sp,
                     fontWeight = FontWeight.Medium
                 )
                 subtitle?.let {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = it,
-                        fontSize = 12.sp,
+                        fontSize = 20.sp,
                         color = Color(0xFF666666)
                     )
                 }
