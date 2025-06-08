@@ -46,7 +46,7 @@ fun NavGraph(
     }
 
     val googlePlacesApiService = remember { retrofit.create(GooglePlacesApiService::class.java) }
-//    val placeRepository = remember { PlaceRepository(googlePlacesApiService, BuildConfig.API_KEY) }
+    val placeRepository = remember { PlaceRepository(googlePlacesApiService, BuildConfig.API_KEY) }
 
     NavHost(
         navController = navController,
@@ -107,32 +107,32 @@ fun NavGraph(
             )
         }
 
-//        composable(
-//            route = Route.MapDetail.route,
-//            arguments = listOf(navArgument("placeId") { type = NavType.StringType })
-//        ) { backStackEntry ->
-//            val placeId = backStackEntry.arguments?.getString("placeId")
-//
-//            // MapDetailViewModel 인스턴스 생성 및 PlaceRepository 주입
-//            val mapDetailViewModel: MapDetailViewModel = viewModel(
-//                factory = object : ViewModelProvider.Factory {
-//                    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-//                        if (modelClass.isAssignableFrom(MapDetailViewModel::class.java)) {
-//                            @Suppress("UNCHECKED_CAST")
-//                            return MapDetailViewModel(placeRepository) as T
-//                        }
-//                        throw IllegalArgumentException("Unknown ViewModel class")
-//                    }
-//                }
-//            )
-//
-//            MapDetailScreen(
-//                placeId = placeId, // placeId 전달
-//                mapDetailViewModel = mapDetailViewModel, // ViewModel 전달
-//                onNavigateBack = { navController.popBackStack() },
-//                onFindRouteClick = { /* TODO: 길찾기 기능 구현 */ }
-//            )
-//        }
+        composable(
+            route = Route.MapDetail.route,
+            arguments = listOf(navArgument("placeId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val placeId = backStackEntry.arguments?.getString("placeId")
+
+            // MapDetailViewModel 인스턴스 생성 및 PlaceRepository 주입
+            val mapDetailViewModel: MapDetailViewModel = viewModel(
+                factory = object : ViewModelProvider.Factory {
+                    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                        if (modelClass.isAssignableFrom(MapDetailViewModel::class.java)) {
+                            @Suppress("UNCHECKED_CAST")
+                            return MapDetailViewModel(placeRepository) as T
+                        }
+                        throw IllegalArgumentException("Unknown ViewModel class")
+                    }
+                }
+            )
+
+            MapDetailScreen(
+                placeId = placeId, // placeId 전달
+                mapDetailViewModel = mapDetailViewModel, // ViewModel 전달
+                onNavigateBack = { navController.popBackStack() },
+                onFindRouteClick = { /* TODO: 길찾기 기능 구현 */ }
+            )
+        }
 
         composable(route = Route.Call.route) {
             CallScreen()
@@ -170,7 +170,6 @@ fun NavGraph(
                 navController = navController
             )
         }
-
 
         composable(route = Route.HomeDetail.route) {
             //HomeDetailScreen()
