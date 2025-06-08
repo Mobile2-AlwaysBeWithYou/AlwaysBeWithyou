@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.alwaysbewithyou.LoginScreen
 import com.example.alwaysbewithyou.presentation.call.CallScreen
+import com.example.alwaysbewithyou.presentation.call.ScheduleScreen
 import com.example.alwaysbewithyou.presentation.guardian.GuardianScreen
 import com.example.alwaysbewithyou.presentation.home.HomeScreen
 import com.example.alwaysbewithyou.presentation.map.MapListScreen
@@ -92,6 +93,10 @@ fun NavGraph(
 
         composable(route = Route.HomeDetail.route) {
             //HomeDetailScreen()
+        }
+
+        composable(route = Route.Schedule.route) {
+            ScheduleScreen(navController = navController)
         }
     }
 }
