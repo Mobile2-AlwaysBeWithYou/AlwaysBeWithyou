@@ -17,9 +17,19 @@ sealed class Route(
 
     data object MapList: Route(route = "mapList")
 
+    data object MapDetail: Route(route = "mapDetail/{placeId}") {
+        fun createRoute(placeId: String) = "mapDetail/$placeId"
+    }
+
     data object Call: Route(route = "call")
 
     data object Guardian: Route(route = "guardian")
 
     data object Setting: Route(route = "setting")
+
+    data object NotificationSetting: Route(route = "notificationSetting")
+
+    data object FontSetting: Route(route = "fontSetting")
+
+    data object Announcement: Route(route = "announcement")
 }

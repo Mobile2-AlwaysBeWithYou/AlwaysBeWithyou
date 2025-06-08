@@ -33,9 +33,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.alwaysbewithyou.R
 import com.google.firebase.auth.FirebaseAuth
 
@@ -43,7 +43,6 @@ import com.google.firebase.auth.FirebaseAuth
 @Composable
 fun MyPageScreen(
     modifier: Modifier = Modifier,
-    onLogout: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -61,7 +60,7 @@ fun MyPageScreen(
                 )
             },
             navigationIcon = {
-                IconButton(onClick = {}) {
+                IconButton(onClick = {navController.popBackStack()}) {
                     Image(
                         painter = painterResource(R.drawable.arrow_back),
                         contentDescription = "arrow back"
@@ -154,17 +153,17 @@ fun MyPageScreen(
         ) {
             SettingsItem(
                 title = "알림",
-                onClick = { /* Handle 알림 click */ }
+                onClick = {navController.navigate("notificationSetting")}
             )
 
             SettingsItem(
                 title = "글씨크기",
-                onClick = { /* Handle 글씨크기 click */ }
+                onClick = {navController.navigate("fontSetting")}
             )
 
             SettingsItem(
                 title = "공지사항",
-                onClick = { /* Handle 공지사항 click */ }
+                onClick = {navController.navigate("announcement")}
             )
 
             SettingsItem(
@@ -224,10 +223,5 @@ fun SettingsItem(
 
         }
     }
-}
 
-@Preview(showBackground = true)
-@Composable
-fun SettingsScreenPreview() {
-    MyPageScreen(onLogout = {})
 }

@@ -1,53 +1,55 @@
+// MapViewModel.kt 파일
+
 package com.example.alwaysbewithyou.presentation.map.tools
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.alwaysbewithyou.presentation.map.tools.RetrofitClient
-import com.example.alwaysbewithyou.presentation.map.tools.PlaceItem
-import com.example.alwaysbewithyou.presentation.map.tools.NaverSearchResponse
+import com.example.alwaysbewithyou.BuildConfig
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
-import android.util.Log
-import com.example.alwaysbewithyou.BuildConfig
+import timber.log.Timber
 
-// 검색 상태를 나타내는 sealed class
 sealed class SearchState {
-    object Idle : SearchState()
-    object Loading : SearchState()
-    data class Success(val results: List<PlaceItem>) : SearchState()
-    data class Error(val message: String) : SearchState()
-    object NoResults : SearchState() // 검색 결과가 없을 때 추가
+    object Idle : SearchState() // 초기 상태 또는 검색 없음
+    object Loading : SearchState() // 검색 진행 중
+    data class Success(val results: List<GooglePlacesApiService.PlaceResult>) : SearchState() // 검색 성공 및 결과 포함
+    object NoResults : SearchState() // 검색 결과 없음
+    data class Error(val message: String) : SearchState() // 검색 중 오류 발생
 }
 
-class MapViewModel : ViewModel() {
+class MapViewModel(
+    private val placeRepository: PlaceRepository // PlaceRepository 주입
+) : ViewModel() {
 
-    private val TAG = "MapViewModel"
+    // 기본 생성자
+    constructor() : this(
+        PlaceRepository(
+            RetrofitClient.googlePlacesApiService,
+            BuildConfig.API_KEY
+        )
+    )
 
-    private val NAVER_SEARCH_CLIENT_ID = BuildConfig.NAVER_SEARCH_CLIENT_ID
-    private val NAVER_SEARCH_CLIENT_SECRET = BuildConfig.NAVER_SEARCH_CLIENT_SECRET
-
-    // 검색어 상태
-    private val _searchQuery = MutableStateFlow("")
-    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
-
-    // 검색 결과 상태 (UI에 반영될 데이터)
     private val _searchResults = MutableStateFlow<SearchState>(SearchState.Idle)
     val searchResults: StateFlow<SearchState> = _searchResults.asStateFlow()
+
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
     fun updateSearchQuery(query: String) {
         _searchQuery.value = query
     }
 
     /**
-     * 네이버 지역 검색 API를 호출하고 결과를 _searchResults에 업데이트합니다.
+     * 텍스트 쿼리를 기반으로 장소를 검색합니다 (검색바 입력용).
      * @param query 검색어
+     * @param currentLocation 현재 위치 (선택 사항). 제공되면 주변 검색을 수행합니다.
      */
-    fun searchLocalPlaces(query: String) {
-        if (query.isBlank()) {
-            _searchResults.value = SearchState.Idle // 빈 검색어면 초기 상태로
+    fun searchPlaces(query: String, currentLocation: LatLng? = null) {
+        if (query.isBlank() && currentLocation == null) { // 검색어 없고 위치도 없으면 Idle
+            _searchResults.value = SearchState.Idle
             return
         }
 
@@ -55,42 +57,32 @@ class MapViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
-                val response = RetrofitClient.naverApiService.searchPlaces(
-                    clientId = NAVER_SEARCH_CLIENT_ID,
-                    clientSecret = NAVER_SEARCH_CLIENT_SECRET,
-                    query = query,
-                    display = 10, // 원하는 결과 개수
-                    start = 1,
-                    sort = "random"
-                )
-
-                if (response.isSuccessful) {
-                    val naverSearchResponse = response.body()
-                    val items = naverSearchResponse?.items ?: emptyList()
-                    if (items.isEmpty()) {
-                        _searchResults.value = SearchState.NoResults // 결과 없을 때
-                    } else {
-                        _searchResults.value = SearchState.Success(items)
-                        Log.d(TAG, "검색 성공. 총 ${naverSearchResponse?.total}개 결과.")
-                        items.forEach { item ->
-                            Log.d(TAG, "  - ${item.title?.replace("<b>", "")?.replace("</b>", "")}, ${item.address}")
-                        }
-                    }
+                val results: List<GooglePlacesApiService.PlaceResult> = if (currentLocation != null) {
+                    // 현재 위치가 있으면 주변 검색 + 키워드 필터링
+                    Timber.d("현재 위치 (${currentLocation.latitude}, ${currentLocation.longitude}) 기반 검색 시작: $query")
+                    placeRepository.searchPlacesNearby(currentLocation.latitude, currentLocation.longitude, query.ifBlank { null }, 50000) // 50km 반경 예시
                 } else {
-                    val errorBody = response.errorBody()?.string()
-                    val errorMessage = "API 호출 실패: HTTP ${response.code()}\n$errorBody"
-                    _searchResults.value = SearchState.Error(errorMessage)
-                    Log.e(TAG, errorMessage)
+                    // 현재 위치가 없으면 일반 텍스트 검색 (MapListScreen에서 직접 사용될 경우 대비)
+                    Timber.d("일반 텍스트 검색 시작: $query")
+                    placeRepository.searchTextPlaces(query)
                 }
-            } catch (e: HttpException) {
-                val errorMessage = "HTTP 예외 발생: ${e.message()}, 코드: ${e.code()}"
-                _searchResults.value = SearchState.Error(errorMessage)
-                Log.e(TAG, errorMessage)
+
+                if (results.isNotEmpty()) {
+                    _searchResults.value = SearchState.Success(results)
+                    Timber.d("검색 성공: ${results.size}개 결과")
+                } else {
+                    _searchResults.value = SearchState.NoResults
+                    Timber.d("검색 결과 없음")
+                }
             } catch (e: Exception) {
-                val errorMessage = "네트워크 또는 기타 예외 발생: ${e.localizedMessage}"
-                _searchResults.value = SearchState.Error(errorMessage)
-                Log.e(TAG, errorMessage, e)
+                _searchResults.value = SearchState.Error("검색 중 오류 발생: ${e.localizedMessage}")
+                Timber.e(e, "검색 오류: ${e.localizedMessage}")
             }
         }
+    }
+
+
+    fun searchPlacesNearby(latitude: Double, longitude: Double, query: String? = null) {
+
     }
 }
