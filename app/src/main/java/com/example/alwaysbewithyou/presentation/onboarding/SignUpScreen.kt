@@ -40,11 +40,16 @@ fun SignUpScreen(
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
+
     val context = LocalContext.current
 
     val isEmailValid = Patterns.EMAIL_ADDRESS.matcher(email).matches()
     val isPasswordValid = password.length >= 6
-    val isFormValid = isEmailValid && isPasswordValid
+    val isNameValid = name.isNotBlank()
+    val isPhoneValid = phone.isNotBlank()
+    val isFormValid = isEmailValid && isPasswordValid && isNameValid && isPhoneValid
 
     Column(
         modifier = modifier
@@ -53,6 +58,39 @@ fun SignUpScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        TextField(
+            value = name,
+            onValueChange = { name = it },
+            placeholder = { Text("이름을 입력하세요.") },
+            singleLine = true,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color(0xFFEDEDED),
+                unfocusedContainerColor = Color(0xFFEDEDED),
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
+            )
+        )
+
+        TextField(
+            value = phone,
+            onValueChange = { phone = it },
+            placeholder = { Text("전화번호를 입력하세요.") },
+            singleLine = true,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color(0xFFEDEDED),
+                unfocusedContainerColor = Color(0xFFEDEDED),
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
+            )
+        )
+
+
         TextField(
             value = email,
             onValueChange = { email = it },
@@ -115,7 +153,11 @@ fun SignUpScreen(
                             Toast.makeText(context, "회원가입 성공", Toast.LENGTH_SHORT).show()
                             onNavigateToLogin()
                         } else {
-                            Toast.makeText(context, "회원가입 실패: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                "회원가입 실패: ${task.exception?.message}",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
             },

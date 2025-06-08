@@ -87,7 +87,13 @@ fun NavGraph(
         }
 
         composable(route = Route.Setting.route) {
-            MyPageScreen()
+            MyPageScreen(
+                onLogout = {
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(0)  // 백스택 제거
+                    }
+                }
+            )
         }
 
         composable(route = Route.HomeDetail.route) {

@@ -37,11 +37,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.alwaysbewithyou.R
+import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyPageScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onLogout: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -177,7 +179,10 @@ fun MyPageScreen(
 
             SettingsItem(
                 title = "로그아웃",
-                onClick = { /* Handle 로그아웃 click */ }
+                onClick = {
+                    FirebaseAuth.getInstance().signOut()
+                    onLogout()
+                }
             )
         }
     }
@@ -224,5 +229,5 @@ fun SettingsItem(
 @Preview(showBackground = true)
 @Composable
 fun SettingsScreenPreview() {
-    MyPageScreen()
+    MyPageScreen(onLogout = {})
 }
