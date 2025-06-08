@@ -20,14 +20,9 @@ import com.example.alwaysbewithyou.presentation.map.MapScreen
 import com.example.alwaysbewithyou.presentation.map.tools.MapViewModel
 import com.example.alwaysbewithyou.presentation.onboarding.SignUpScreen
 import com.example.alwaysbewithyou.presentation.onboarding.SplashScreen
+import com.example.alwaysbewithyou.presentation.setting.AnnouncementScreen
+import com.example.alwaysbewithyou.presentation.setting.FontSettingScreen
 import com.example.alwaysbewithyou.presentation.setting.MyPageScreen
-import androidx.navigation.navArgument
-import com.example.alwaysbewithyou.BuildConfig
-import com.example.alwaysbewithyou.presentation.map.tools.GooglePlacesApiService
-import com.example.alwaysbewithyou.presentation.map.tools.MapDetailViewModel
-import com.example.alwaysbewithyou.presentation.map.tools.PlaceRepository
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 @Composable
 fun NavGraph(
@@ -141,7 +136,27 @@ fun NavGraph(
         }
 
         composable(route = Route.Setting.route) {
-            MyPageScreen()
+            MyPageScreen(
+                navController = navController
+            )
+        }
+
+        composable(route = Route.NotificationSetting.route) {
+            NotificationSettingScreen(
+                navController = navController
+            )
+        }
+
+        composable(route = Route.FontSetting.route) {
+            FontSettingScreen(
+                navController = navController
+            )
+        }
+
+        composable(route = Route.Announcement.route) {
+            AnnouncementScreen(
+                navController = navController
+            )
         }
 
         composable(route = Route.HomeDetail.route) {
