@@ -43,6 +43,8 @@ import com.google.firebase.auth.FirebaseAuth
 @Composable
 fun MyPageScreen(
     modifier: Modifier = Modifier,
+    navController: NavHostController,
+    onLogout: () -> Unit,
 ) {
     Column(
         modifier = modifier

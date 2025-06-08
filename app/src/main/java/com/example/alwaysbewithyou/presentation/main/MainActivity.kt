@@ -1,9 +1,12 @@
 package com.example.alwaysbewithyou.presentation.main
 
-import android.app.*
+import android.app.AlertDialog
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
+import android.icu.text.SimpleDateFormat
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -11,13 +14,14 @@ import android.os.Looper
 import android.widget.RemoteViews
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
-import android.app.AlertDialog
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.navigation.compose.rememberNavController
+import com.example.alwaysbewithyou.R
+import com.example.alwaysbewithyou.ui.theme.AlwaysBeWithYouTheme
+import java.util.Date
+import java.util.Locale
 
 class MainActivity : ComponentActivity() {
 
