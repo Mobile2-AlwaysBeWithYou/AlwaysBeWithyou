@@ -24,8 +24,6 @@ import com.example.alwaysbewithyou.presentation.map.tools.MapViewModel
 import com.example.alwaysbewithyou.presentation.map.tools.PlaceRepository
 import com.example.alwaysbewithyou.presentation.onboarding.SignUpScreen
 import com.example.alwaysbewithyou.presentation.onboarding.SplashScreen
-import com.example.alwaysbewithyou.presentation.setting.AnnouncementScreen
-import com.example.alwaysbewithyou.presentation.setting.FontSettingScreen
 import com.example.alwaysbewithyou.presentation.setting.MyPageScreen
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -61,7 +59,7 @@ fun NavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = Route.Map.route
+        startDestination = Route.Splash.route
     ) {
         composable(route = Route.Splash.route) {
             SplashScreen(
