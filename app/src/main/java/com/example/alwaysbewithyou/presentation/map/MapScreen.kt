@@ -1,5 +1,3 @@
-// MapScreen.kt 파일
-
 package com.example.alwaysbewithyou.presentation.map
 
 import android.Manifest
@@ -10,6 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -86,8 +85,15 @@ fun MapScreen(
             permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
         ) {
             Timber.d("위치 권한 승인됨")
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
                 fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
                     location?.let {
                         currentLocation = LatLng(it.latitude, it.longitude)
@@ -104,8 +110,15 @@ fun MapScreen(
     LaunchedEffect(Unit) {
         if (locationPermissionsState.allPermissionsGranted) {
             try {
-                if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-                    ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
                     val locationResult = fusedLocationClient.lastLocation.await()
                     locationResult?.let {
                         currentLocation = LatLng(it.latitude, it.longitude)
@@ -133,13 +146,15 @@ fun MapScreen(
     LaunchedEffect(currentLocation) {
         currentLocation?.let {
             cameraPositionState.animate(
-                update = CameraUpdateFactory.newLatLngZoom(it, 15f), // 줌 레벨 조정
+                update = CameraUpdateFactory.newLatLngZoom(it, 15f),
                 durationMs = 1000
             )
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
         // 검색 입력 필드
         OutlinedTextField(
             value = searchText,
@@ -147,7 +162,6 @@ fun MapScreen(
             label = { Text("장소 검색") },
             trailingIcon = {
                 IconButton(onClick = {
-                    // 사용자가 검색 아이콘 클릭 시: 현재 위치 기반 검색 시작 후 MapListScreen으로 이동
                     viewModel.searchPlaces(searchText)
                     onNavigateToMapList()
                 }) {
@@ -159,7 +173,6 @@ fun MapScreen(
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(onSearch = {
-                // 키보드 검색 버튼 클릭 시: 현재 위치 기반 검색 시작 후 MapListScreen으로 이동
                 viewModel.searchPlaces(searchText)
                 onNavigateToMapList()
             })
@@ -177,11 +190,11 @@ fun MapScreen(
                     modifier = Modifier.fillMaxSize(),
                     cameraPositionState = cameraPositionState,
                     properties = MapProperties(
-                        isMyLocationEnabled = true // 내 위치 표시 활성화
+                        isMyLocationEnabled = true
                     ),
                     uiSettings = MapUiSettings(
-                        myLocationButtonEnabled = true, // 내 위치 버튼
-                        zoomControlsEnabled = false // 줌 컨트롤 비활성화 (선택 사항)
+                        myLocationButtonEnabled = true,
+                        zoomControlsEnabled = false
                     )
                 ) {
 
@@ -201,8 +214,6 @@ fun MapScreen(
                 )
             }
 
-            // 검색 진행 중일 때 로딩 인디케이터 표시 (MapScreen에서만)
-            // (이 로딩은 사용자가 검색 버튼을 눌렀을 때만 잠깐 표시될 것입니다)
             if (searchState is SearchState.Loading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }

@@ -1,5 +1,6 @@
 package com.example.alwaysbewithyou.presentation.navigation
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -31,7 +32,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 @Composable
 fun NavGraph(
     navController: NavHostController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
 
@@ -59,7 +60,8 @@ fun NavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = Route.Splash.route
+        startDestination = Route.Splash.route,
+        modifier = modifier
     ) {
         composable(route = Route.Splash.route) {
             SplashScreen(
@@ -104,7 +106,7 @@ fun NavGraph(
                 onPlaceClick = { placeId ->
                     navController.navigate(Route.MapDetail.createRoute(placeId))
                 },
-                viewModel = mapViewModel
+                viewModel = mapViewModel,
             )
         }
 
