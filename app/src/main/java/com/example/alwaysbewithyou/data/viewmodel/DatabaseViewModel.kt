@@ -158,6 +158,7 @@ class DatabaseViewModel : ViewModel() {
         }
     }
 
+
     fun linkGuardianWard(userId: String, relation: GuardianWard) {
         FirestoreRepository.linkGuardianWard(userId, relation)
         loadGuardianWards(userId)
