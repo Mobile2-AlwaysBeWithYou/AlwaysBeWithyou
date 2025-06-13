@@ -62,6 +62,11 @@ object FirestoreRepository {
         db.collection("users").document(userId)
             .collection("pill_alarms")
             .add(alarm)
+            .addOnSuccessListener { document ->
+                val generatedId = document.id
+                val alarmWithId = alarm.copy(id = generatedId)
+                document.set(alarmWithId)
+            }
     }
 
     fun getPillAlarms(userId: String, callback: (List<PillAlarm>) -> Unit) {

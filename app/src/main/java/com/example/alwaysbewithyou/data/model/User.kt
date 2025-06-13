@@ -4,6 +4,8 @@ package com.example.dbtest.data
 data class User(
     val id: String = "",
     val name: String = "",
+    val age: Int? = null,
+    val gender: String = "",
     val phone: String = "",
     val password: String ="",
     val is_guardian: Boolean = false,

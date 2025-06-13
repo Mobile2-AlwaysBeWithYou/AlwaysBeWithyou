@@ -11,6 +11,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.alwaysbewithyou.BuildConfig
 import com.example.alwaysbewithyou.LoginScreen
 import com.example.alwaysbewithyou.data.viewmodel.DatabaseViewModel
 import com.example.alwaysbewithyou.presentation.call.CallScreen
@@ -26,8 +27,14 @@ import com.example.alwaysbewithyou.presentation.map.tools.MapViewModel
 import com.example.alwaysbewithyou.presentation.map.tools.PlaceRepository
 import com.example.alwaysbewithyou.presentation.onboarding.SignUpScreen
 import com.example.alwaysbewithyou.presentation.onboarding.SplashScreen
+import com.example.alwaysbewithyou.presentation.setting.AnnouncementScreen
+import com.example.alwaysbewithyou.presentation.setting.FontSettingScreen
+import com.example.alwaysbewithyou.presentation.setting.InformationUpdateScreen
 import com.example.alwaysbewithyou.presentation.setting.MyPageScreen
+import com.example.alwaysbewithyou.presentation.setting.NotificationSettingScreen
+
 import com.google.firebase.auth.FirebaseAuth
+
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -36,8 +43,10 @@ fun NavGraph(
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
+    val mapViewModel: MapViewModel = viewModel()
     val context = LocalContext.current
     val databaseViewModel : DatabaseViewModel = viewModel()
+
 
     val retrofit = remember {
         Retrofit.Builder()
@@ -177,11 +186,41 @@ fun NavGraph(
         composable(route = Route.Setting.route) {
             MyPageScreen(
                 navController = navController,
+                databaseViewModel = databaseViewModel,
+
                 onLogout = {
                     navController.navigate(Route.Login.route) {
                         popUpTo(0)  // 백스택 제거
                     }
                 }
+            )
+        }
+
+        composable(route = Route.InformationUpdate.route) {
+            InformationUpdateScreen(
+                navController = navController,
+                databaseViewModel = databaseViewModel
+            )
+        }
+
+        composable(route = Route.NotificationSetting.route) {
+            NotificationSettingScreen(
+                navController = navController,
+                databaseViewModel = databaseViewModel
+            )
+        }
+
+        composable(route = Route.FontSetting.route) {
+            FontSettingScreen(
+                navController = navController,
+                databaseViewModel = databaseViewModel
+            )
+        }
+
+        composable(route = Route.Announcement.route) {
+            AnnouncementScreen(
+                navController = navController
+
             )
         }
 
