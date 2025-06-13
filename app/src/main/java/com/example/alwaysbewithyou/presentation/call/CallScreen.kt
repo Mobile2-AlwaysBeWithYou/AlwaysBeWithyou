@@ -82,7 +82,7 @@ fun CallScreen(
 
                 MenuCard(
                     title = "상담 기록 조회",
-                    onClick = { navController.navigate("record") },
+                    onClick = { navController.navigate("review") },
                     height = 100.dp
                 )
 
@@ -93,7 +93,7 @@ fun CallScreen(
                     title = "전화 요청",
                     subtitle = "사랑안는집핑 연결",
                     onClick = {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.1661-2129.or.kr/ㅅ"))
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.1661-2129.or.kr/"))
                         context.startActivity(intent)
                     },
                     height = 200.dp

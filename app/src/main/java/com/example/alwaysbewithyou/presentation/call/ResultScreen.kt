@@ -1,6 +1,8 @@
 package com.example.alwaysbewithyou.presentation.call
 
 import android.R.attr.label
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -10,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -37,7 +40,7 @@ fun ResultScreen(
     // 최신 상담 신청 찾기
     val latestConsultation = consultations.maxByOrNull { it.requested_at?.seconds ?: 0 }
 
-    // 예약번호 생성 (실제로는 데이터베이스에서 관리해야 함)
+    // 아직랜덤 생성
     val reservationNumber = remember { "NO.${String.format("%03d", (1..999).random())}" }
 
     // 상담 데이터 로드
@@ -221,17 +224,18 @@ fun ResultScreen(
                         text = "상담 기록 조회",
                         onClick = {
                             // 상담 기록 조회 페이지로 이동
-                            navController.navigate("consultationHistory")
+                            navController.navigate("review")
                         }
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
 
+                    val context = LocalContext.current
                     ActionButton(
                         text = "전화 요청 가기",
                         onClick = {
-                            // 전화 요청 페이지로 이동
-                            navController.navigate("phoneRequest")
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.1661-2129.or.kr/"))
+                            context.startActivity(intent)
                         }
                     )
 
