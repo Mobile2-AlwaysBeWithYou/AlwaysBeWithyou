@@ -43,7 +43,6 @@ fun NavGraph(
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
-    val mapViewModel: MapViewModel = viewModel()
     val context = LocalContext.current
     val databaseViewModel : DatabaseViewModel = viewModel()
 
@@ -104,11 +103,7 @@ fun NavGraph(
         }
 
         composable(route = Route.Home.route) {
-            HomeScreen(
-                onNavigateToHomeDetail = {
-                    navController.navigate(Route.HomeDetail.route)
-                }
-            )
+            HomeScreen()
         }
 
         composable(route = Route.Map.route) {
