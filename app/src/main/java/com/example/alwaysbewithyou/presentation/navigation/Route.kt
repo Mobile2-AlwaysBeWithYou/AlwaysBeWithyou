@@ -25,6 +25,8 @@ sealed class Route(
 
     data object Guardian: Route(route = "guardian")
 
+    data object GuardianAdd : Route(route = "guardianAdd")
+
     data object Setting: Route(route = "setting")
 
     data object InformationUpdate: Route(route = "informationUpdate")

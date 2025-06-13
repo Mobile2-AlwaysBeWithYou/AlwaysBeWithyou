@@ -3,6 +3,7 @@ package com.example.alwaysbewithyou.presentation.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -14,6 +15,7 @@ import com.example.alwaysbewithyou.BuildConfig
 import com.example.alwaysbewithyou.LoginScreen
 import com.example.alwaysbewithyou.data.viewmodel.DatabaseViewModel
 import com.example.alwaysbewithyou.presentation.call.CallScreen
+import com.example.alwaysbewithyou.presentation.guardian.GuardianAddScreen
 import com.example.alwaysbewithyou.presentation.guardian.GuardianScreen
 import com.example.alwaysbewithyou.presentation.home.HomeScreen
 import com.example.alwaysbewithyou.presentation.map.MapDetailScreen
@@ -30,6 +32,9 @@ import com.example.alwaysbewithyou.presentation.setting.FontSettingScreen
 import com.example.alwaysbewithyou.presentation.setting.InformationUpdateScreen
 import com.example.alwaysbewithyou.presentation.setting.MyPageScreen
 import com.example.alwaysbewithyou.presentation.setting.NotificationSettingScreen
+
+import com.google.firebase.auth.FirebaseAuth
+
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -39,7 +44,9 @@ fun NavGraph(
     modifier: Modifier = Modifier
 ) {
     val mapViewModel: MapViewModel = viewModel()
-    val databaseViewModel: DatabaseViewModel = viewModel()
+    val context = LocalContext.current
+    val databaseViewModel : DatabaseViewModel = viewModel()
+
 
     val retrofit = remember {
         Retrofit.Builder()
@@ -49,7 +56,19 @@ fun NavGraph(
     }
 
     val googlePlacesApiService = remember { retrofit.create(GooglePlacesApiService::class.java) }
-    val placeRepository = remember { PlaceRepository(googlePlacesApiService, BuildConfig.API_KEY) }
+    val placeRepository = remember { PlaceRepository(googlePlacesApiService, context) }
+
+    val mapViewModel: MapViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                if (modelClass.isAssignableFrom(MapViewModel::class.java)) {
+                    @Suppress("UNCHECKED_CAST")
+                    return MapViewModel(placeRepository) as T
+                }
+                throw IllegalArgumentException("Unknown ViewModel class")
+            }
+        }
+    )
 
     NavHost(
         navController = navController,
@@ -64,10 +83,12 @@ fun NavGraph(
         }
 
         composable(route = Route.SignUp.route) {
+
             SignUpScreen(
                 onNavigateToLogin = {
                     navController.navigate(Route.Login.route)
-                }
+                },
+                viewModel = databaseViewModel
             )
         }
 
@@ -142,13 +163,31 @@ fun NavGraph(
         }
 
         composable(route = Route.Guardian.route) {
-            GuardianScreen()
+            val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+
+            currentUserId?.let { userId ->
+                GuardianScreen(
+                    onNavigateToAddPage = { navController.navigate(Route.GuardianAdd.route) },
+                    viewModel = databaseViewModel,
+                    userId = userId
+                )
+            }
+        }
+
+        composable(route = Route.GuardianAdd.route) {
+            GuardianAddScreen(
+                onNavigateToGuardian = {
+                    navController.navigate(Route.Guardian.route)
+                },
+                viewModel = databaseViewModel
+            )
         }
 
         composable(route = Route.Setting.route) {
             MyPageScreen(
                 navController = navController,
                 databaseViewModel = databaseViewModel,
+
                 onLogout = {
                     navController.navigate(Route.Login.route) {
                         popUpTo(0)  // 백스택 제거
@@ -181,6 +220,7 @@ fun NavGraph(
         composable(route = Route.Announcement.route) {
             AnnouncementScreen(
                 navController = navController
+
             )
         }
 

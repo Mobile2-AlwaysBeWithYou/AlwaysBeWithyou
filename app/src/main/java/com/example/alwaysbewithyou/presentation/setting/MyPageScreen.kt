@@ -50,6 +50,7 @@ fun MyPageScreen(
     navController: NavHostController,
     databaseViewModel: DatabaseViewModel,
     onLogout: () -> Unit,
+
 ) {
 
     val currentUser by databaseViewModel.user.collectAsState()

@@ -28,20 +28,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.alwaysbewithyou.data.viewmodel.DatabaseViewModel
+import com.example.dbtest.data.User
 import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUpScreen(
     modifier: Modifier = Modifier,
+    viewModel: DatabaseViewModel,
     onNavigateToLogin: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
+    var emailError by remember { mutableStateOf("") }
 
     val context = LocalContext.current
 
@@ -117,6 +120,17 @@ fun SignUpScreen(
             )
         }
 
+        if (emailError.isNotEmpty()) {
+            Text(
+                text = emailError,
+                color = Color.Red,
+                fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                modifier = Modifier
+                    .align(Alignment.Start)
+                    .padding(start = 8.dp)
+            )
+        }
+
         TextField(
             value = password,
             onValueChange = { password = it },
@@ -146,18 +160,38 @@ fun SignUpScreen(
 
         Button(
             onClick = {
+                // Firebase Authentication을 이용한 회원가입
                 FirebaseAuth.getInstance()
                     .createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
-                            Toast.makeText(context, "회원가입 성공", Toast.LENGTH_SHORT).show()
-                            onNavigateToLogin()
+                            // 회원가입 성공 시 Firestore에 사용자 정보 저장
+                            val userId = FirebaseAuth.getInstance().currentUser?.uid
+                            val user = User(
+                                id = userId ?: "",
+                                name = name,
+                                phone = phone,
+                                password = password,
+                                is_guardian = false // 필요에 따라 설정
+                            )
+
+                            viewModel.createUser(user) {
+                                Toast.makeText(context, "회원가입 성공", Toast.LENGTH_SHORT).show()
+                                onNavigateToLogin()
+                            }
                         } else {
-                            Toast.makeText(
-                                context,
-                                "회원가입 실패: ${task.exception?.message}",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            // 회원가입 실패 (이메일 중복 등)
+                            val errorMessage = task.exception?.message
+                            if (errorMessage != null && errorMessage.contains("The email address is already in use")) {
+                                // 이메일이 이미 사용 중인 경우
+                                emailError = "이미 사용 중인 이메일입니다."
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "회원가입 실패: ${task.exception?.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
                     }
             },
@@ -184,12 +218,4 @@ fun SignUpScreen(
                 .padding(top = 4.dp)
         )
     }
-}
-
-@Preview
-@Composable
-private fun SignUpPrev() {
-    SignUpScreen(
-        onNavigateToLogin = {}
-    )
 }

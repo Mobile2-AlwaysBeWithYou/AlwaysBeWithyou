@@ -25,6 +25,8 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,30 +42,27 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.alwaysbewithyou.R
+import com.example.alwaysbewithyou.data.viewmodel.DatabaseViewModel
 import com.example.alwaysbewithyou.presentation.main.component.MainBottomBar
 import com.example.alwaysbewithyou.presentation.navigation.BottomNavItem
 import com.example.alwaysbewithyou.presentation.navigation.Route
 
 @Composable
 fun GuardianScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onNavigateToAddPage: () -> Unit,
+    viewModel: DatabaseViewModel,
+    userId: String
 ) {
     val context = LocalContext.current
-    //val user = FirebaseAuth.getInstance().currentUser
-    var userName by remember { mutableStateOf("") }
-    var userPhone by remember { mutableStateOf("") }
+    val user by viewModel.user.collectAsState()
+    val guardians by viewModel.guardianWards.collectAsState()
     var showMenu by remember { mutableStateOf(false) }
 
-//    LaunchedEffect(Unit) {
-//        user?.uid?.let { uid ->
-//            Firebase.firestore.collection("users").document(uid)
-//                .get()
-//                .addOnSuccessListener { doc ->
-//                    userName = doc.getString("name") ?: ""
-//                    userPhone = doc.getString("phone") ?: ""
-//                }
-//        }
-//    }
+    LaunchedEffect(Unit) {
+        viewModel.loadUser(userId)
+        viewModel.loadGuardianWards(userId)
+    }
 
     val bottomNavItems = listOf(
         BottomNavItem("홈", Route.Home.route, R.drawable.home_selected, R.drawable.home),
@@ -115,6 +114,7 @@ fun GuardianScreen(
                     modifier = modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.Top
                 ) {
+                    // 사용자 프로필 위 백버튼 있는 부분
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -122,7 +122,7 @@ fun GuardianScreen(
                             .padding(20.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Box(modifier=Modifier.fillMaxWidth()){
+                        Box(modifier = Modifier.fillMaxWidth()) {
                             IconButton(onClick = {}) {
                                 Image(
                                     painter = painterResource(R.drawable.arrow_back),
@@ -132,6 +132,8 @@ fun GuardianScreen(
                         }
 
                         Spacer(modifier = Modifier.height(16.dp))
+
+                        // 사용자 프로필 부분
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Image(
                                 painter = painterResource(id = R.drawable.profile_image),
@@ -143,19 +145,26 @@ fun GuardianScreen(
                             )
                             Spacer(modifier = Modifier.height(8.dp))
 
-                            Text("사용자 이름", fontSize = 18.sp)
-                            Text("010-1234-1234", fontSize = 14.sp)
-                            //Text(userName, fontSize = 18.sp)
-                            //Text(userPhone, fontSize = 14.sp, color = Color.Gray)
+                            Text(text = user?.name ?: "사용자 이름", fontSize = 18.sp)
+                            Text(text = user?.phone ?: "010-XXXX-XXXX", fontSize = 14.sp)
                         }
                     }
 
-                    Column(modifier = Modifier.weight(1f).padding(top = 10.dp).background(Color.White)) {
-                        GuardianCard(name = "보호자 이름", relation = "아들") {
-                            // 전화걸기 처리
-                        }
-                        GuardianCard(name = "봉사자 이름", relation = "봉사자") {
-                            // 전화걸기 처리
+                    // 보호자 카드 리스트
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(top = 10.dp)
+                            .background(Color.White)
+                    ) {
+                        guardians.forEach { ward ->
+                            GuardianCard(
+                                name = ward.guardian_name,
+                                relation = ward.relation,
+                                onCallClick = {
+                                    // 전화 기능 처리
+                                }
+                            )
                         }
                     }
                 }
@@ -185,7 +194,10 @@ fun GuardianScreen(
                             )
                             DropdownMenuItem(
                                 text = { Text("새로 추가하기") },
-                                onClick = { showMenu = false }
+                                onClick = {
+                                    showMenu = false
+                                    onNavigateToAddPage()
+                                }
                             )
                         }
                     }
@@ -195,9 +207,3 @@ fun GuardianScreen(
     }
 }
 
-
-@Preview
-@Composable
-private fun GuardianPrev() {
-    GuardianScreen()
-}

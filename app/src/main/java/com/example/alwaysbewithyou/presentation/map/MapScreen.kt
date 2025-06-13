@@ -130,20 +130,12 @@ fun MapScreen(
         position = CameraPosition.fromLatLngZoom(currentLocation ?: singapore, 10f)
     }
 
-    // 현재 위치가 업데이트되면 카메라를 해당 위치로 이동 (선택 사항)
     LaunchedEffect(currentLocation) {
         currentLocation?.let {
             cameraPositionState.animate(
                 update = CameraUpdateFactory.newLatLngZoom(it, 15f), // 줌 레벨 조정
                 durationMs = 1000
             )
-            // !!! 중요: MapScreen에서 초기 주변 검색을 제거합니다. !!!
-            // 이전 코드:
-            // if (searchText.isBlank() && searchState is SearchState.Idle) {
-            //     viewModel.searchPlacesNearby(it.latitude, it.longitude, null)
-            //     Timber.d("현재 위치 기반 초기 검색 시작 (MapScreen에만 표시): ${it.latitude}, ${it.longitude}")
-            // }
-            // 이 부분을 제거하여 MapScreen 로드 시 자동 주변 검색을 하지 않습니다.
         }
     }
 
@@ -156,8 +148,8 @@ fun MapScreen(
             trailingIcon = {
                 IconButton(onClick = {
                     // 사용자가 검색 아이콘 클릭 시: 현재 위치 기반 검색 시작 후 MapListScreen으로 이동
-                    viewModel.searchPlaces(searchText, currentLocation) // 현재 위치 전달
-                    onNavigateToMapList() // 이 부분에서 내비게이션을 트리거합니다.
+                    viewModel.searchPlaces(searchText)
+                    onNavigateToMapList()
                 }) {
                     Icon(Icons.Filled.Search, contentDescription = "검색")
                 }
@@ -168,8 +160,8 @@ fun MapScreen(
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(onSearch = {
                 // 키보드 검색 버튼 클릭 시: 현재 위치 기반 검색 시작 후 MapListScreen으로 이동
-                viewModel.searchPlaces(searchText, currentLocation) // 현재 위치 전달
-                onNavigateToMapList() // 이 부분에서 내비게이션을 트리거합니다.
+                viewModel.searchPlaces(searchText)
+                onNavigateToMapList()
             })
         )
 
@@ -192,27 +184,7 @@ fun MapScreen(
                         zoomControlsEnabled = false // 줌 컨트롤 비활성화 (선택 사항)
                     )
                 ) {
-                    // 이제 MapScreen에서는 검색 결과 마커를 표시하지 않습니다.
-                    // 마커 표시는 MapListScreen에서 담당하거나, 별도의 로직으로 추가할 수 있습니다.
-                    /*
-                    if (searchState is SearchState.Success && searchText.isBlank()) {
-                        (searchState as SearchState.Success).results.forEach { place ->
-                            place.geometry?.location?.let { loc ->
-                                com.google.maps.android.compose.Marker(
-                                    state = com.google.maps.android.compose.rememberMarkerState(
-                                        position = LatLng(loc.lat ?: 0.0, loc.lng ?: 0.0)
-                                    ),
-                                    title = place.name,
-                                    snippet = place.formattedAddress,
-                                    onClick = { marker ->
-                                        place.placeId?.let { onPlaceClick(it) }
-                                        true
-                                    }
-                                )
-                            }
-                        }
-                    }
-                    */
+
                 }
             } else {
                 GoogleMap(
