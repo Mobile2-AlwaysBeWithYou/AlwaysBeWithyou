@@ -158,13 +158,13 @@ fun GuardianScreen(
                             .background(Color.White)
                     ) {
                         guardians.forEach { ward ->
-                            GuardianCard(
-                                name = ward.guardian_name,
-                                relation = ward.relation,
-                                onCallClick = {
-                                    // 전화 기능 처리
-                                }
-                            )
+//                            GuardianCard(
+//                                name = ward.guardian_name,
+//                                relation = ward.relation,
+//                                onCallClick = {
+//                                    // 전화 기능 처리
+//                                }
+//                            )
                         }
                     }
                 }

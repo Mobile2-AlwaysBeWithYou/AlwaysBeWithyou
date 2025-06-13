@@ -1,6 +1,8 @@
 package com.example.alwaysbewithyou.presentation.call
 
 import android.R.attr.fontWeight
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -30,10 +32,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavHostController
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -84,10 +88,14 @@ fun CallScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
+                val context = LocalContext.current
                 MenuCard(
                     title = "전화 요청",
                     subtitle = "사랑안는집핑 연결",
-                    onClick = { },
+                    onClick = {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.1661-2129.or.kr/ㅅ"))
+                        context.startActivity(intent)
+                    },
                     height = 200.dp
                 )
             }

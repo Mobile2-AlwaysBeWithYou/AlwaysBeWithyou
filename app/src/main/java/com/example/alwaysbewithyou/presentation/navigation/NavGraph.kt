@@ -14,6 +14,7 @@ import androidx.navigation.navArgument
 import com.example.alwaysbewithyou.LoginScreen
 import com.example.alwaysbewithyou.data.viewmodel.DatabaseViewModel
 import com.example.alwaysbewithyou.presentation.call.CallScreen
+import com.example.alwaysbewithyou.presentation.call.ResultScreen
 import com.example.alwaysbewithyou.presentation.guardian.GuardianAddScreen
 import com.example.alwaysbewithyou.presentation.call.ScheduleScreen
 import com.example.alwaysbewithyou.presentation.guardian.GuardianScreen
@@ -191,7 +192,17 @@ fun NavGraph(
         }
 
         composable(route = Route.Schedule.route) {
-            ScheduleScreen(navController = navController)
+            ScheduleScreen(
+                navController = navController,
+                databaseViewModel = databaseViewModel
+            )
+        }
+
+        composable(route = Route.Result.route) {
+            ResultScreen(
+                navController = navController,
+                databaseViewModel = databaseViewModel
+            )
         }
     }
 }
