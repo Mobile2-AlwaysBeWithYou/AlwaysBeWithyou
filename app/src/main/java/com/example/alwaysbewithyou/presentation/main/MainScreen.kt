@@ -14,10 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.alwaysbewithyou.R
+import com.example.alwaysbewithyou.presentation.home.HomeScreen
 import com.example.alwaysbewithyou.presentation.main.component.MainBottomBar
 import com.example.alwaysbewithyou.presentation.navigation.BottomNavItem
 import com.example.alwaysbewithyou.presentation.navigation.NavGraph
@@ -96,3 +98,4 @@ fun MainScreen(
         )
     }
 }
+
