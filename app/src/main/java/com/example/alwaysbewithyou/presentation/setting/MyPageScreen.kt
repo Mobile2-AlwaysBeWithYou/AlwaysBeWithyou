@@ -26,6 +26,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.alwaysbewithyou.R
+import com.example.alwaysbewithyou.data.viewmodel.DatabaseViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,8 +48,18 @@ import com.google.firebase.auth.FirebaseAuth
 fun MyPageScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
+    databaseViewModel: DatabaseViewModel,
     onLogout: () -> Unit,
 ) {
+
+    val currentUser by databaseViewModel.user.collectAsState()
+    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+    LaunchedEffect(currentUserId) {
+        if (currentUserId.isNotEmpty()) {
+            databaseViewModel.loadUser(currentUserId)
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize(),
@@ -117,19 +131,21 @@ fun MyPageScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "이름",
+                        text = currentUser?.name.toString(),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.Black
                     )
                     Text(
-                        text = "나이 : 86세 성별 : 여",
+                        text = "나이 : ${currentUser?.age}세 성별 : ${currentUser?.gender}",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.padding(4.dp)
                     )
                     Button(
-                        onClick = { /* Handle profile edit */ },
+                        onClick = {
+                            navController.navigate("informationUpdate")
+                        },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFF424242)
                         ),
