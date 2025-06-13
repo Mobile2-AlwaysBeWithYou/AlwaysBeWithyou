@@ -173,7 +173,8 @@ fun NavGraph(
 
         composable(route = Route.FontSetting.route) {
             FontSettingScreen(
-                navController = navController
+                navController = navController,
+                databaseViewModel = databaseViewModel
             )
         }
 
