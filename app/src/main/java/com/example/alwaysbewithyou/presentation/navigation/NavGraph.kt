@@ -166,7 +166,8 @@ fun NavGraph(
 
         composable(route = Route.NotificationSetting.route) {
             NotificationSettingScreen(
-                navController = navController
+                navController = navController,
+                databaseViewModel = databaseViewModel
             )
         }
 
