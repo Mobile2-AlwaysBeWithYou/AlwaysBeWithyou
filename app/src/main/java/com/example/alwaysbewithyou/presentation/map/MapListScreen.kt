@@ -3,6 +3,7 @@ package com.example.alwaysbewithyou.presentation.map
 import android.Manifest
 import android.content.Context
 import android.util.Log
+import androidx.compose.material3.CardDefaults
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,13 +23,20 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -127,11 +135,32 @@ fun MapListScreen(
             )
         }
     }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
+        // 뒤로가기 버튼 및 텍스트
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp, start = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onNavigateBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "뒤로가기"
+                )
+            }
+            Text(
+                text = "뒤로가기",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(start = 4.dp)
+            )
+        }
+
         // 지도
         Box(
             modifier = Modifier
@@ -235,6 +264,7 @@ fun MapListScreen(
                                 }
                             } ?: (places ?: emptyList())
                         }
+
                         else -> places ?: emptyList()
                     }
 
@@ -248,8 +278,10 @@ fun MapListScreen(
                                         navController.navigate(
                                             Route.MapDetail.createRouteWithStart(
                                                 placeId,
-                                                currentLocation?.latitude?.toFloat() ?: 37.5408f,
-                                                currentLocation?.longitude?.toFloat() ?: 127.0793f
+                                                currentLocation?.latitude?.toFloat()
+                                                    ?: 37.5408f,
+                                                currentLocation?.longitude?.toFloat()
+                                                    ?: 127.0793f
                                             )
                                         )
                                     }
@@ -273,6 +305,7 @@ fun MapListScreen(
         }
     }
 }
+
 
 @Composable
 fun PlaceListItem(
@@ -300,8 +333,10 @@ fun PlaceListItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
-            .clickable { onClick(place) }
+            .padding(horizontal = 8.dp)
+            .clickable { onClick(place) },
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
@@ -346,7 +381,7 @@ fun SortToggle(sortType: String, onSortChange: (String) -> Unit) {
             TextButton(
                 onClick = { onSortChange(type) },
                 colors = ButtonDefaults.textButtonColors(
-                    containerColor = if (isSelected) Color(0xFFFFF5E3) else Color.Transparent,
+                    containerColor = if (isSelected) Color(0xFFD1D1D6) else Color.Transparent,
                     contentColor = Color.Black
                 ),
                 shape = RoundedCornerShape(16.dp),
@@ -358,7 +393,7 @@ fun SortToggle(sortType: String, onSortChange: (String) -> Unit) {
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = null,
-                        tint = Color(0xFF222222),
+                        tint = Color.Black,
                         modifier = Modifier.size(16.dp)
                     )
                 }
