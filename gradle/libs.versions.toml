@@ -17,6 +17,7 @@ accompanistPermissionsVersion = "0.37.3"
 firebaseFirestore = "25.1.4"
 firebaseFirestoreKtx = "25.1.4"
 mapsUtilsKtx = "5.2.0"
+coilCompose = "3.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -40,6 +41,7 @@ accompanist-permissions = { group = "com.google.accompanist", name = "accompanis
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
 maps-utils-ktx = { group = "com.google.maps.android", name = "maps-utils-ktx", version.ref = "mapsUtilsKtx" }
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coilCompose" }
 
 
 [plugins]

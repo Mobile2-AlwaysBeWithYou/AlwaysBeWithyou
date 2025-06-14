@@ -77,6 +77,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.maps.utils.ktx)
+    implementation(libs.coil.compose)
 
 
     testImplementation(libs.junit)
