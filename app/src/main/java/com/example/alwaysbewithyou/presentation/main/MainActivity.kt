@@ -86,7 +86,8 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                NavGraph(navController = navController)
+//                NavGraph(navController = navController)
+                MainScreen(navController = navController)
             }
         }
 

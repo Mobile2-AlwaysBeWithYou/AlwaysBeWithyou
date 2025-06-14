@@ -103,9 +103,7 @@ fun NavGraph(
         }
 
         composable(route = Route.Home.route) {
-            HomeScreen(
-                navController = navController
-            )
+            HomeScreen()
         }
 
         composable(route = Route.Map.route) {
