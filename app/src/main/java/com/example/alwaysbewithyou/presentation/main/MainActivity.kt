@@ -17,12 +17,22 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.navigation.compose.rememberNavController
 import com.example.alwaysbewithyou.R
-import com.example.alwaysbewithyou.presentation.navigation.NavGraph
 import com.example.alwaysbewithyou.presentation.navigation.Route
 import com.example.alwaysbewithyou.ui.theme.AlwaysBeWithYouTheme
 import com.google.android.libraries.places.api.Places
@@ -84,24 +94,28 @@ class MainActivity : ComponentActivity() {
         setContent {
             AlwaysBeWithYouTheme {
                 val navController = rememberNavController()
+                var showConfirmation by remember { mutableStateOf(fromNotification) }
 
                 LaunchedEffect(fromNotification) {
                     //알림 클릭 로직
                     if (fromNotification) {
                         NotificationManagerCompat.from(this@MainActivity).cancelAll()
-
-                        navController.navigate(Route.Home.route) {
-                            popUpTo(navController.graph.startDestinationId) {
-                                inclusive = true
-                            }
-                        }
-
-                        resetNotificationTimer()
                     }
                 }
 
-//                NavGraph(navController = navController)
-                MainScreen(navController = navController)
+                // 확인 화면 표시 여부에 따라 UI 선택
+                if (showConfirmation) {
+                    NotificationConfirmationScreen(
+                        onConfirm = {
+                            showConfirmation = false
+                            // 통지 카운터 리셋 및 알림 타이머 재설정
+                            notificationCount = 0
+                            resetNotificationTimer()
+                        }
+                    )
+                } else {
+                    MainScreen(navController = navController)
+                }
             }
         }
 
@@ -200,6 +214,80 @@ class MainActivity : ComponentActivity() {
         super.onDestroy()
         if (::notificationHandler.isInitialized && ::notificationRunnable.isInitialized) {
             notificationHandler.removeCallbacks(notificationRunnable)
+        }
+    }
+}
+
+@Composable
+fun NotificationConfirmationScreen(
+    onConfirm: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White),
+        contentAlignment = Alignment.Center
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(32.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // 웃는 얼굴 이모지
+                Text(
+                    text = "😊",
+                    fontSize = 48.sp,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                // 메인 제목
+                Text(
+                    text = "접속이 확인되었습니다.",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                    textAlign = TextAlign.Center
+                )
+
+                // 부제목
+                Text(
+                    text = "4시간후에 다시 알림 예정",
+                    fontSize = 14.sp,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // 확인 버튼
+                Button(
+                    onClick = onConfirm,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFF9800) // 오렌지 색상
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = "확인",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.White
+                    )
+                }
+            }
         }
     }
 }
