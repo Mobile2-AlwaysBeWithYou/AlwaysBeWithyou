@@ -62,6 +62,11 @@ object FirestoreRepository {
         db.collection("users").document(userId)
             .collection("pill_alarms")
             .add(alarm)
+            .addOnSuccessListener { document ->
+                val generatedId = document.id
+                val alarmWithId = alarm.copy(id = generatedId)
+                document.set(alarmWithId)
+            }
     }
 
     fun getPillAlarms(userId: String, callback: (List<PillAlarm>) -> Unit) {
@@ -86,7 +91,7 @@ object FirestoreRepository {
     }
 
 
-    fun addNotification(userId: String, notification: Notification) {
+    fun addNotification(userId: String, notification: com.example.dbtest.data.Notification) {
         db.collection("users").document(userId)
             .collection("notifications")
             .add(notification)
@@ -155,7 +160,7 @@ object FirestoreRepository {
     }
 
 
-    fun linkGuardianWard(userId: String, relation: GuardianWard) {
+    fun linkGuardianWard(userId: String, relation: GuardianWard, onSuccess: () -> Unit = {}, onFailure: (Exception) -> Unit = {}) {
         db.collection("users").document(userId)
             .collection("guardian_wards")
             .add(relation)

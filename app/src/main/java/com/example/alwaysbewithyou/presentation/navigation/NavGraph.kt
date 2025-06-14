@@ -12,8 +12,14 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.alwaysbewithyou.BuildConfig
 import com.example.alwaysbewithyou.LoginScreen
+import com.example.alwaysbewithyou.data.viewmodel.DatabaseViewModel
 import com.example.alwaysbewithyou.presentation.call.CallScreen
+import com.example.alwaysbewithyou.presentation.call.ResultScreen
+import com.example.alwaysbewithyou.presentation.call.ReviewScreen
+import com.example.alwaysbewithyou.presentation.guardian.GuardianAddScreen
+import com.example.alwaysbewithyou.presentation.call.ScheduleScreen
 import com.example.alwaysbewithyou.presentation.guardian.GuardianScreen
 import com.example.alwaysbewithyou.presentation.home.HomeScreen
 import com.example.alwaysbewithyou.presentation.map.MapDetailScreen
@@ -28,8 +34,13 @@ import com.example.alwaysbewithyou.presentation.map.tools.PlaceRepository
 import com.example.alwaysbewithyou.presentation.map.viewmodel.MapRouteViewModel
 import com.example.alwaysbewithyou.presentation.onboarding.SignUpScreen
 import com.example.alwaysbewithyou.presentation.onboarding.SplashScreen
+import com.example.alwaysbewithyou.presentation.setting.AnnouncementScreen
+import com.example.alwaysbewithyou.presentation.setting.FontSettingScreen
+import com.example.alwaysbewithyou.presentation.setting.InformationUpdateScreen
 import com.example.alwaysbewithyou.presentation.setting.MyPageScreen
 import com.google.android.gms.maps.model.LatLng
+import com.example.alwaysbewithyou.presentation.setting.NotificationSettingScreen
+import com.google.firebase.auth.FirebaseAuth
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import com.example.alwaysbewithyou.presentation.map.tools.DirectionRepository
@@ -43,6 +54,8 @@ fun NavGraph(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val databaseViewModel : DatabaseViewModel = viewModel()
+
 
     val retrofit = remember {
         Retrofit.Builder()
@@ -116,10 +129,12 @@ fun NavGraph(
         }
 
         composable(route = Route.SignUp.route) {
+
             SignUpScreen(
                 onNavigateToLogin = {
                     navController.navigate(Route.Login.route)
-                }
+                },
+                viewModel = databaseViewModel
             )
         }
 
@@ -135,11 +150,7 @@ fun NavGraph(
         }
 
         composable(route = Route.Home.route) {
-            HomeScreen(
-                onNavigateToHomeDetail = {
-                    navController.navigate(Route.HomeDetail.route)
-                }
-            )
+            HomeScreen()
         }
 
         composable(route = Route.Map.route) {
@@ -272,16 +283,35 @@ fun NavGraph(
         }
 
         composable(route = Route.Call.route) {
-            CallScreen()
+            CallScreen(navController = navController)
         }
 
         composable(route = Route.Guardian.route) {
-            GuardianScreen()
+            val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+
+            currentUserId?.let { userId ->
+                GuardianScreen(
+                    onNavigateToAddPage = { navController.navigate(Route.GuardianAdd.route) },
+                    viewModel = databaseViewModel,
+                    userId = userId
+                )
+            }
+        }
+
+        composable(route = Route.GuardianAdd.route) {
+            GuardianAddScreen(
+                onNavigateToGuardian = {
+                    navController.navigate(Route.Guardian.route)
+                },
+                viewModel = databaseViewModel
+            )
         }
 
         composable(route = Route.Setting.route) {
             MyPageScreen(
                 navController = navController,
+                databaseViewModel = databaseViewModel,
+
                 onLogout = {
                     navController.navigate(Route.Login.route) {
                         popUpTo(0)  // 백스택 제거
@@ -290,8 +320,57 @@ fun NavGraph(
             )
         }
 
+        composable(route = Route.InformationUpdate.route) {
+            InformationUpdateScreen(
+                navController = navController,
+                databaseViewModel = databaseViewModel
+            )
+        }
+
+        composable(route = Route.NotificationSetting.route) {
+            NotificationSettingScreen(
+                navController = navController,
+                databaseViewModel = databaseViewModel
+            )
+        }
+
+        composable(route = Route.FontSetting.route) {
+            FontSettingScreen(
+                navController = navController,
+                databaseViewModel = databaseViewModel
+            )
+        }
+
+        composable(route = Route.Announcement.route) {
+            AnnouncementScreen(
+                navController = navController
+
+            )
+        }
+
         composable(route = Route.HomeDetail.route) {
             //HomeDetailScreen()
+        }
+
+        composable(route = Route.Schedule.route) {
+            ScheduleScreen(
+                navController = navController,
+                databaseViewModel = databaseViewModel
+            )
+        }
+
+        composable(route = Route.Result.route) {
+            ResultScreen(
+                navController = navController,
+                databaseViewModel = databaseViewModel
+            )
+        }
+
+        composable(route = Route.Review.route) {
+            ReviewScreen(
+                navController = navController,
+                databaseViewModel = databaseViewModel
+            )
         }
     }
 }

@@ -44,11 +44,21 @@ sealed class Route(
 
     data object Guardian: Route(route = "guardian")
 
+    data object GuardianAdd : Route(route = "guardianAdd")
+
     data object Setting: Route(route = "setting")
+
+    data object InformationUpdate: Route(route = "informationUpdate")
 
     data object NotificationSetting: Route(route = "notificationSetting")
 
     data object FontSetting: Route(route = "fontSetting")
 
     data object Announcement: Route(route = "announcement")
+
+    data object Schedule: Route(route = "schedule")
+
+    data object Result: Route(route = "result")
+
+    data object Review: Route(route = "review")
 }

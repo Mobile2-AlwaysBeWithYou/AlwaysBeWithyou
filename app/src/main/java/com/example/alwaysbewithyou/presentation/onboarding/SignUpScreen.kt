@@ -28,9 +28,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.alwaysbewithyou.data.repository.FirestoreRepository
+import com.example.alwaysbewithyou.data.viewmodel.DatabaseViewModel
 import com.example.dbtest.data.User
 import com.google.firebase.auth.FirebaseAuth
 
@@ -38,6 +37,7 @@ import com.google.firebase.auth.FirebaseAuth
 @Composable
 fun SignUpScreen(
     modifier: Modifier = Modifier,
+    viewModel: DatabaseViewModel,
     onNavigateToLogin: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
@@ -175,7 +175,7 @@ fun SignUpScreen(
                                 is_guardian = false // 필요에 따라 설정
                             )
 
-                            FirestoreRepository.createUser(user) {
+                            viewModel.createUser(user) {
                                 Toast.makeText(context, "회원가입 성공", Toast.LENGTH_SHORT).show()
                                 onNavigateToLogin()
                             }
@@ -218,13 +218,4 @@ fun SignUpScreen(
                 .padding(top = 4.dp)
         )
     }
-}
-
-
-@Preview
-@Composable
-private fun SignUpPrev() {
-    SignUpScreen(
-        onNavigateToLogin = {}
-    )
 }

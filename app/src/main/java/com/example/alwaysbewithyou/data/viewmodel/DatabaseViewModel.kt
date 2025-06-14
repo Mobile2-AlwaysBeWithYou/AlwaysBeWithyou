@@ -5,9 +5,9 @@ import com.example.alwaysbewithyou.data.repository.FirestoreRepository
 import com.example.dbtest.data.CheckIn
 import com.example.dbtest.data.Consultation
 import com.example.dbtest.data.GuardianWard
+import com.example.dbtest.data.Notification
 import com.example.dbtest.data.PillAlarm
 import com.example.dbtest.data.Settings
-import com.example.dbtest.data.Notification
 import com.example.dbtest.data.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,9 +19,10 @@ class DatabaseViewModel : ViewModel() {
     val user: StateFlow<User?> = _user
 
     //사용자 생성
-    fun createUser(user: User) {
+    fun createUser(user: User, onComplete: () -> Unit) {
         FirestoreRepository.createUser(user) {
             loadUser(user.id)
+            onComplete()
         }
     }
 
@@ -156,6 +157,7 @@ class DatabaseViewModel : ViewModel() {
             _guardianWards.value = it
         }
     }
+
 
     fun linkGuardianWard(userId: String, relation: GuardianWard) {
         FirestoreRepository.linkGuardianWard(userId, relation)
