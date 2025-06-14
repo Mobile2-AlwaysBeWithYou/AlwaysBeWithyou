@@ -404,7 +404,7 @@ fun InformationUpdateScreen(
                         gender = gender,
                         phone = phone
                     )
-                    databaseViewModel.createUser(updatedUser)
+                    databaseViewModel.createUser(updatedUser,{})
                     navController.popBackStack()
                 }
             },
