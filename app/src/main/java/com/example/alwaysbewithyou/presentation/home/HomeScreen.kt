@@ -1,5 +1,6 @@
 package com.example.alwaysbewithyou.presentation.home
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -16,6 +17,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
@@ -25,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -38,13 +44,29 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.alwaysbewithyou.presentation.guardian.GuardianScreen
+import androidx.navigation.NavHostController
+import com.example.alwaysbewithyou.presentation.main.component.MainBottomBar
+import com.example.alwaysbewithyou.presentation.navigation.BottomNavItem
+import com.example.alwaysbewithyou.presentation.navigation.Route
 
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    navController: NavHostController
+) {
+
+    val bottomNavItems = listOf(
+        BottomNavItem("홈", Route.Home.route, R.drawable.home_selected, R.drawable.home),
+        BottomNavItem("지도", Route.Map.route, R.drawable.map_selected, R.drawable.map),
+        BottomNavItem("상담·전화", Route.Call.route, R.drawable.call_selected, R.drawable.call),
+        BottomNavItem("보호자", Route.Guardian.route, R.drawable.heart_selected, R.drawable.heart),
+        BottomNavItem("설정", Route.Setting.route, R.drawable.setting_selected, R.drawable.setting)
+    )
+
+    val currentRoute = Route.Guardian.route
+
     val currentTime = remember {
         val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
         sdf.format(Date())
@@ -59,108 +81,114 @@ fun HomeScreen() {
     )
     val coroutineScope = rememberCoroutineScope()
 
-    BottomSheetScaffold(
-        scaffoldState = scaffoldState,
-        sheetDragHandle = null,
-        sheetContent = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(600.dp)
-                    .padding(horizontal = 24.dp, vertical = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Top // 改为顶部对齐
-            ) {
-                Column {
-                    Box(
-                        modifier = Modifier
-                            .width(100.dp)
-                            .height(3.dp)
-                            .background(Color(0xFFDEB887), RoundedCornerShape(2.dp))
-                    )
-                    Spacer(modifier = Modifier.height(3.dp))
-                    Box(
-                        modifier = Modifier
-                            .width(100.dp)
-                            .height(3.dp)
-                            .background(Color(0xFFDEB887), RoundedCornerShape(2.dp))
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(30.dp))
-
-                Text(
-                    text = "마지막 접속 시간\n${currentTime}",
-                    fontSize = 20.sp,
-                    color = Color(0xFFD4822A),
-                    fontWeight = FontWeight.Medium,
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(100.dp))
-
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "더 많은 정보",
-                        fontSize = 18.sp,
-                        color = Color(0xFFD4822A),
-                        fontWeight = FontWeight.Medium
-                    )
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    //
-
-                }
-            }
-        },
-        sheetPeekHeight = 200.dp,
-        sheetMaxWidth = BottomSheetDefaults.SheetMaxWidth,
-        sheetSwipeEnabled = true,
-        sheetContainerColor = Color.White,
-        sheetShape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color(0xFFfeeed4))
-                .padding(paddingValues)
-                .pointerInput(Unit) {
-                    detectDragGestures { _, dragAmount ->
-
-                        if (dragAmount.y < -50f && bottomSheetState.currentValue == SheetValue.Hidden) {
-                            coroutineScope.launch {
-                                bottomSheetState.partialExpand()
-                            }
-                        }
-                    }
-                },
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(modifier = Modifier.height(40.dp))
-
-            Text(
-                text = "오늘도 괜찮으신가요?",
-                fontSize = 25.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFFD4822A),
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 24.dp)
-            )
-
-            Spacer(modifier = Modifier.height(60.dp))
-
+    Scaffold(
+        bottomBar = {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(360.dp)
-                    .background(Color(0xFFE6C7A3))
+                    .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+            ) {
+                NavigationBar(
+                    containerColor = Color.White
+                ) {
+                    bottomNavItems.forEach { item ->
+                        MainBottomBar(
+                            selected = currentRoute == item.route,
+                            onClick = {
+                                navController.navigate(item.route)
+                            },
+                            icon = {
+                                Icon(
+                                    painter = painterResource(
+                                        if (item.route == currentRoute) item.selectedIcon else item.unselectedIcon
+                                    ),
+                                    contentDescription = item.label,
+                                    tint = Color.Unspecified
+                                )
+                            },
+                            label = {
+                                Text(text = item.label)
+                            },
+                            colors = NavigationBarItemDefaults.colors(
+                                indicatorColor = Color.Transparent
+                            )
+                        )
+                    }
+                }
+            }
+        }
+    ){innerPadding->
+        BottomSheetScaffold(
+            scaffoldState = scaffoldState,
+            sheetDragHandle = null,
+            sheetContent = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(600.dp)
+                        .padding(horizontal = 24.dp, vertical = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Top // 改为顶部对齐
+                ) {
+                    Column {
+                        Box(
+                            modifier = Modifier
+                                .width(100.dp)
+                                .height(3.dp)
+                                .background(Color(0xFFDEB887), RoundedCornerShape(2.dp))
+                        )
+                        Spacer(modifier = Modifier.height(3.dp))
+                        Box(
+                            modifier = Modifier
+                                .width(100.dp)
+                                .height(3.dp)
+                                .background(Color(0xFFDEB887), RoundedCornerShape(2.dp))
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(30.dp))
+
+                    Text(
+                        text = "마지막 접속 시간\n${currentTime}",
+                        fontSize = 20.sp,
+                        color = Color(0xFFD4822A),
+                        fontWeight = FontWeight.Medium,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(modifier = Modifier.height(100.dp))
+
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "더 많은 정보",
+                            fontSize = 18.sp,
+                            color = Color(0xFFD4822A),
+                            fontWeight = FontWeight.Medium
+                        )
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        //
+
+                    }
+                }
+            },
+            sheetPeekHeight = 200.dp,
+            sheetMaxWidth = BottomSheetDefaults.SheetMaxWidth,
+            sheetSwipeEnabled = true,
+            sheetContainerColor = Color.White,
+            sheetShape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFFfeeed4))
+                    .padding(paddingValues)
                     .pointerInput(Unit) {
                         detectDragGestures { _, dragAmount ->
-                            // 在图片区域也检测向上滑动
+
                             if (dragAmount.y < -50f && bottomSheetState.currentValue == SheetValue.Hidden) {
                                 coroutineScope.launch {
                                     bottomSheetState.partialExpand()
@@ -168,14 +196,45 @@ fun HomeScreen() {
                             }
                         }
                     },
-                contentAlignment = Alignment.Center
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.mainhome),
-                    contentDescription = "mainhomeImage",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.FillWidth
+                Spacer(modifier = Modifier.height(40.dp))
+
+                Text(
+                    text = "오늘도 괜찮으신가요?",
+                    fontSize = 25.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFD4822A),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 24.dp)
                 )
+
+                Spacer(modifier = Modifier.height(60.dp))
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(360.dp)
+                        .background(Color(0xFFE6C7A3))
+                        .pointerInput(Unit) {
+                            detectDragGestures { _, dragAmount ->
+                                // 在图片区域也检测向上滑动
+                                if (dragAmount.y < -50f && bottomSheetState.currentValue == SheetValue.Hidden) {
+                                    coroutineScope.launch {
+                                        bottomSheetState.partialExpand()
+                                    }
+                                }
+                            }
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.mainhome),
+                        contentDescription = "mainhomeImage",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.FillWidth
+                    )
+                }
             }
         }
     }
