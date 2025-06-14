@@ -38,9 +38,9 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.alwaysbewithyou.R
 import com.example.alwaysbewithyou.data.viewmodel.DatabaseViewModel
 import com.example.alwaysbewithyou.presentation.main.component.MainBottomBar
@@ -52,6 +52,7 @@ fun GuardianScreen(
     modifier: Modifier = Modifier,
     onNavigateToAddPage: () -> Unit,
     viewModel: DatabaseViewModel,
+    navController: NavHostController,
     userId: String
 ) {
     val context = LocalContext.current
@@ -123,7 +124,7 @@ fun GuardianScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Box(modifier = Modifier.fillMaxWidth()) {
-                            IconButton(onClick = {}) {
+                            IconButton(onClick = {navController.popBackStack()}) {
                                 Image(
                                     painter = painterResource(R.drawable.arrow_back),
                                     contentDescription = "arrow back"
