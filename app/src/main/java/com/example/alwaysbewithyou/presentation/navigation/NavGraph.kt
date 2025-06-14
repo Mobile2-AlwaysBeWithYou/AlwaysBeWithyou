@@ -15,7 +15,10 @@ import com.example.alwaysbewithyou.BuildConfig
 import com.example.alwaysbewithyou.LoginScreen
 import com.example.alwaysbewithyou.data.viewmodel.DatabaseViewModel
 import com.example.alwaysbewithyou.presentation.call.CallScreen
+import com.example.alwaysbewithyou.presentation.call.ResultScreen
+import com.example.alwaysbewithyou.presentation.call.ReviewScreen
 import com.example.alwaysbewithyou.presentation.guardian.GuardianAddScreen
+import com.example.alwaysbewithyou.presentation.call.ScheduleScreen
 import com.example.alwaysbewithyou.presentation.guardian.GuardianScreen
 import com.example.alwaysbewithyou.presentation.home.HomeScreen
 import com.example.alwaysbewithyou.presentation.map.MapDetailScreen
@@ -154,7 +157,7 @@ fun NavGraph(
         }
 
         composable(route = Route.Call.route) {
-            CallScreen()
+            CallScreen(navController = navController)
         }
 
         composable(route = Route.Guardian.route) {
@@ -221,6 +224,27 @@ fun NavGraph(
 
         composable(route = Route.HomeDetail.route) {
             //HomeDetailScreen()
+        }
+
+        composable(route = Route.Schedule.route) {
+            ScheduleScreen(
+                navController = navController,
+                databaseViewModel = databaseViewModel
+            )
+        }
+
+        composable(route = Route.Result.route) {
+            ResultScreen(
+                navController = navController,
+                databaseViewModel = databaseViewModel
+            )
+        }
+
+        composable(route = Route.Review.route) {
+            ReviewScreen(
+                navController = navController,
+                databaseViewModel = databaseViewModel
+            )
         }
     }
 }
