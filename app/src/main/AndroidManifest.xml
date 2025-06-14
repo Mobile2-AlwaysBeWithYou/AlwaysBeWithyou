@@ -3,8 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-
 
     <application
         android:allowBackup="true"
@@ -21,8 +22,16 @@
             android:value="${NAVER_MAP_CLIENT_ID}" />
 
         <meta-data
+            android:name="com.naver.maps.map.NCP_KEY"
+            android:value="${NAVER_MAP_CLIENT_SECRET}" />
+
+        <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${API_KEY}" />
+
+        <meta-data
+            android:name="com.skt.Tmap.OPENAPIKEY"
+            android:value="${TMAP_API_KEY}" />
 
         <activity
             android:name=".presentation.main.MainActivity"

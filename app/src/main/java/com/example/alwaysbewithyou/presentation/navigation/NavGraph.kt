@@ -1,5 +1,6 @@
 package com.example.alwaysbewithyou.presentation.navigation
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -23,28 +24,34 @@ import com.example.alwaysbewithyou.presentation.guardian.GuardianScreen
 import com.example.alwaysbewithyou.presentation.home.HomeScreen
 import com.example.alwaysbewithyou.presentation.map.MapDetailScreen
 import com.example.alwaysbewithyou.presentation.map.MapListScreen
+import com.example.alwaysbewithyou.presentation.map.MapRouteScreen
 import com.example.alwaysbewithyou.presentation.map.MapScreen
-import com.example.alwaysbewithyou.presentation.map.tools.GooglePlacesApiService
-import com.example.alwaysbewithyou.presentation.map.tools.MapDetailViewModel
-import com.example.alwaysbewithyou.presentation.map.tools.MapViewModel
+import com.example.alwaysbewithyou.presentation.map.api.GoogleDirectionsApiService
+import com.example.alwaysbewithyou.presentation.map.api.GooglePlacesApiService
+import com.example.alwaysbewithyou.presentation.map.viewmodel.MapDetailViewModel
+import com.example.alwaysbewithyou.presentation.map.viewmodel.MapViewModel
 import com.example.alwaysbewithyou.presentation.map.tools.PlaceRepository
+import com.example.alwaysbewithyou.presentation.map.viewmodel.MapRouteViewModel
 import com.example.alwaysbewithyou.presentation.onboarding.SignUpScreen
 import com.example.alwaysbewithyou.presentation.onboarding.SplashScreen
 import com.example.alwaysbewithyou.presentation.setting.AnnouncementScreen
 import com.example.alwaysbewithyou.presentation.setting.FontSettingScreen
 import com.example.alwaysbewithyou.presentation.setting.InformationUpdateScreen
 import com.example.alwaysbewithyou.presentation.setting.MyPageScreen
+import com.google.android.gms.maps.model.LatLng
 import com.example.alwaysbewithyou.presentation.setting.NotificationSettingScreen
-
 import com.google.firebase.auth.FirebaseAuth
-
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import com.example.alwaysbewithyou.presentation.map.tools.DirectionRepository
+import com.example.alwaysbewithyou.presentation.map.TmapNetworkModule
+import com.example.alwaysbewithyou.presentation.map.TransportType
+
 
 @Composable
 fun NavGraph(
     navController: NavHostController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val databaseViewModel : DatabaseViewModel = viewModel()
@@ -58,7 +65,31 @@ fun NavGraph(
     }
 
     val googlePlacesApiService = remember { retrofit.create(GooglePlacesApiService::class.java) }
+    val googleDirectionsApiService = remember { retrofit.create(GoogleDirectionsApiService::class.java) }
+    val tmapDirectionsApiService = remember { TmapNetworkModule.tmapDirectionsApiService }
+
+    val directionRepository = remember {
+        DirectionRepository(
+            tmapDirectionsApiService,
+            googleDirectionsApiService,
+            context
+        )
+    }
+
+    val mapRouteViewModelFactory = remember {
+        object : ViewModelProvider.Factory {
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                if (modelClass.isAssignableFrom(MapRouteViewModel::class.java)) {
+                    @Suppress("UNCHECKED_CAST")
+                    return MapRouteViewModel(directionRepository) as T
+                }
+                throw IllegalArgumentException("Unknown ViewModel class")
+            }
+        }
+    }
+
     val placeRepository = remember { PlaceRepository(googlePlacesApiService, context) }
+
 
     val mapViewModel: MapViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
@@ -72,9 +103,22 @@ fun NavGraph(
         }
     )
 
+    val mapRouteViewModel: MapRouteViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                if (modelClass.isAssignableFrom(MapRouteViewModel::class.java)) {
+                    @Suppress("UNCHECKED_CAST")
+                    return MapRouteViewModel(directionRepository) as T
+                }
+                throw IllegalArgumentException("Unknown ViewModel class")
+            }
+        }
+    )
+
     NavHost(
         navController = navController,
-        startDestination = Route.Splash.route
+        startDestination = Route.Splash.route,
+        modifier = modifier
     ) {
         composable(route = Route.Splash.route) {
             SplashScreen(
@@ -96,10 +140,10 @@ fun NavGraph(
 
         composable(route = Route.Login.route) {
             LoginScreen(
-                onNavigateToHome={
+                onNavigateToHome = {
                     navController.navigate(Route.Home.route)
                 },
-                onNavigateToSignUp={
+                onNavigateToSignUp = {
                     navController.navigate(Route.SignUp.route)
                 }
             )
@@ -111,31 +155,67 @@ fun NavGraph(
 
         composable(route = Route.Map.route) {
             MapScreen(
-                onNavigateToMapList = {
-                    navController.navigate(Route.MapList.route)
+                onNavigateToMapList = { lat, lng ->
+                    navController.navigate(Route.MapList.createRoute(lat, lng))
                 },
-                onPlaceClick = { placeId ->
-                    navController.navigate(Route.MapDetail.createRoute(placeId))
+                onPlaceClick = { placeId, currentGpsLocation ->
+                    val startLat = currentGpsLocation?.latitude?.toFloat() ?: 37.5408f
+                    val startLng = currentGpsLocation?.longitude?.toFloat() ?: 127.0793f
+
+                    navController.navigate(
+                        Route.MapDetail.createRouteWithStart(
+                            placeId,
+                            startLat,
+                            startLng
+                        )
+                    )
                 },
-                viewModel = mapViewModel
+                viewModel = mapViewModel,
             )
         }
 
-        composable(Route.MapList.route) {
+        composable(
+            route = Route.MapList.route,
+            arguments = listOf(
+                navArgument("currentLat") {
+                    type = NavType.FloatType
+                    defaultValue = 0.0f
+                },
+                navArgument("currentLng") {
+                    type = NavType.FloatType
+                    defaultValue = 0.0f
+                }
+            )
+        ) { backStackEntry ->
+            val currentLat = backStackEntry.arguments?.getFloat("currentLat")?.toDouble()
+            val currentLng = backStackEntry.arguments?.getFloat("currentLng")?.toDouble()
+            val passedCurrentLocation = if (currentLat != null && currentLng != null) {
+                LatLng(currentLat, currentLng)
+            } else {
+                null
+            }
+
             MapListScreen(
                 viewModel = mapViewModel,
                 onNavigateBack = { navController.popBackStack() },
-                navController = navController
+                navController = navController,
+                currentLocation = passedCurrentLocation
             )
         }
 
         composable(
             route = Route.MapDetail.route,
-            arguments = listOf(navArgument("placeId") { type = NavType.StringType })
+            arguments = listOf(
+                navArgument("placeId") { type = NavType.StringType },
+                navArgument("startLat") { type = NavType.FloatType },
+                navArgument("startLng") { type = NavType.FloatType }
+            )
         ) { backStackEntry ->
             val placeId = backStackEntry.arguments?.getString("placeId")
+            val startLat = backStackEntry.arguments?.getFloat("startLat")?.toDouble() ?: 0.0
+            val startLng = backStackEntry.arguments?.getFloat("startLng")?.toDouble() ?: 0.0
+            val initialStartLocation = LatLng(startLat, startLng)
 
-            // MapDetailViewModel 인스턴스 생성 및 PlaceRepository 주입
             val mapDetailViewModel: MapDetailViewModel = viewModel(
                 factory = object : ViewModelProvider.Factory {
                     override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
@@ -149,10 +229,56 @@ fun NavGraph(
             )
 
             MapDetailScreen(
-                placeId = placeId, // placeId 전달
-                mapDetailViewModel = mapDetailViewModel, // ViewModel 전달
+                placeId = placeId,
+                mapDetailViewModel = mapDetailViewModel,
                 onNavigateBack = { navController.popBackStack() },
-                onFindRouteClick = { /* TODO: 길찾기 기능 구현 */ }
+                onFindRouteClick = { destinationLatLng ->
+                    navController.navigate(
+                        Route.MapRoute.createRoute(
+                            initialStartLocation.latitude.toFloat(),
+                            initialStartLocation.longitude.toFloat(),
+                            destinationLatLng.latitude.toFloat(),
+                            destinationLatLng.longitude.toFloat(),
+                            TransportType.TRANSIT
+                        )
+                    )
+                }
+            )
+        }
+
+        composable(
+            route = Route.MapRoute.route,
+            arguments = listOf(
+                navArgument("startLat") { type = NavType.FloatType },
+                navArgument("startLng") { type = NavType.FloatType },
+                navArgument("endLat") { type = NavType.FloatType },
+                navArgument("endLng") { type = NavType.FloatType },
+                navArgument("transportType") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val startLat = backStackEntry.arguments?.getFloat("startLat")?.toDouble() ?: 0.0
+            val startLng = backStackEntry.arguments?.getFloat("startLng")?.toDouble() ?: 0.0
+            val endLat = backStackEntry.arguments?.getFloat("endLat")?.toDouble() ?: 0.0
+            val endLng = backStackEntry.arguments?.getFloat("endLng")?.toDouble() ?: 0.0
+            val transportTypeString = backStackEntry.arguments?.getString("transportType") ?: TransportType.DRIVING.name // 기본값 DRIVING
+
+            val initialTransportType = try {
+                TransportType.valueOf(transportTypeString)
+            } catch (e: IllegalArgumentException) {
+                Log.e("NavGraph", "Invalid TransportType received: $transportTypeString, defaulting to DRIVING")
+                TransportType.DRIVING
+            }
+
+            Log.d("NavGraph", "MapRouteScreen received: start=($startLat, $startLng), end=($endLat, $endLng), type=$initialTransportType")
+
+            val mapRouteViewModel: MapRouteViewModel = viewModel(factory = mapRouteViewModelFactory)
+
+            MapRouteScreen(
+                viewModel = mapRouteViewModel,
+                startLocation = LatLng(startLat, startLng),
+                endLocation = LatLng(endLat, endLng),
+                initialTransportType = initialTransportType,
+                onNavigateBack = { navController.popBackStack() }
             )
         }
 

@@ -1,8 +1,8 @@
 package com.example.alwaysbewithyou.presentation.map
 
-import android.R.attr.rating
-import android.R.attr.text
-import androidx.compose.foundation.Image
+import android.content.Context
+import android.content.pm.PackageManager
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,14 +23,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.alwaysbewithyou.R
-import com.example.alwaysbewithyou.presentation.map.tools.MapDetailViewModel
-import com.example.alwaysbewithyou.presentation.map.tools.PlaceDetailState
+import coil.compose.AsyncImage
+import com.example.alwaysbewithyou.presentation.map.viewmodel.MapDetailViewModel
+import com.example.alwaysbewithyou.presentation.map.viewmodel.PlaceDetailState
+import com.google.android.gms.maps.model.LatLng
 
 @Composable
 fun MapDetailScreen(
@@ -38,9 +38,8 @@ fun MapDetailScreen(
     modifier: Modifier = Modifier,
     mapDetailViewModel: MapDetailViewModel,
     onNavigateBack: () -> Unit,
-    onFindRouteClick: () -> Unit
+    onFindRouteClick: (LatLng) -> Unit
 ) {
-
     val placeDetailState by mapDetailViewModel.placeDetail.collectAsState()
 
     LaunchedEffect(placeId) {
@@ -48,10 +47,6 @@ fun MapDetailScreen(
             mapDetailViewModel.loadPlaceDetails(placeId)
         }
     }
-    val placeName = "선택된 장소 이름 (${placeId ?: "ID 없음"})"
-    val rating = 4.5
-    val address = "선택된 장소의 상세 주소 (데이터 로드 예정)"
-    val details = "이곳은 ${placeId ?: "ID 없음"}에 대한 상세 정보입니다. 더 많은 정보가 여기에 표시될 수 있습니다. (TODO: 실제 데이터 로드)"
 
     Column(
         modifier = modifier
@@ -80,26 +75,6 @@ fun MapDetailScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 장소 사진 (현재 보류)
-//        Box(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .height(200.dp)
-//                .padding(horizontal = 16.dp)
-//                .clip(RoundedCornerShape(8.dp))
-//                .background(Color(0xFFE0E0E0)),
-//            contentAlignment = Alignment.Center
-//        ) {
-//            Icon(
-//                painter = painterResource(id = R.drawable.ic_image_placeholder),
-//                contentDescription = "장소 사진",
-//                modifier = Modifier.size(64.dp),
-//                tint = Color(0xFFAAAAAA)
-//            )
-//        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
         // 장소 이름
         when (placeDetailState) {
             is PlaceDetailState.Loading -> {
@@ -107,7 +82,7 @@ fun MapDetailScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator() // 로딩 인디케이터
+                    CircularProgressIndicator()
                 }
             }
             is PlaceDetailState.Error -> {
@@ -121,31 +96,36 @@ fun MapDetailScreen(
             is PlaceDetailState.Success -> {
                 val place = (placeDetailState as PlaceDetailState.Success).place
 
-                // 장소 사진 Placeholder (현재 보류)
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
-                        .padding(horizontal = 16.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color(0xFFE0E0E0)),
-                    contentAlignment = Alignment.Center
-                ) {
-//                    Icon(
-//                        painter = painterResource(id = R.drawable.ic_image_placeholder),
-//                        contentDescription = "장소 사진",
-//                        modifier = Modifier.size(64.dp),
-//                        tint = Color(0xFFAAAAAA)
-//                    )
-                    // TODO: 실제 장소 사진 로드 로직 (Coil, Glide 등 라이브러리 사용)
-                    // if (place.photos?.isNotEmpty() == true) {
-                    //    AsyncImage(
-                    //        model = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${place.photos[0].photoReference}&key=YOUR_API_KEY",
-                    //        contentDescription = "장소 사진",
-                    //        modifier = Modifier.fillMaxSize(),
-                    //        contentScale = ContentScale.Crop
-                    //    )
-                    // }
+                val photoRef = place.photos?.firstOrNull()?.photoReference
+                if (photoRef != null) {
+                    val imageUrl = mapDetailViewModel.getPhotoUrl(photoRef)
+                    Log.d("MapDetailScreen", "Image URL: $imageUrl")
+
+                    AsyncImage(
+                        model = imageUrl,
+                        contentDescription = "장소 사진",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
+                            .padding(horizontal = 16.dp)
+                            .clip(RoundedCornerShape(8.dp)),
+                        contentScale = ContentScale.Crop,
+                        onError = {
+                            Log.e("MapDetailScreen", "이미지 로딩 실패: ${it.result.throwable}")
+                        }
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
+                            .padding(horizontal = 16.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color(0xFFE0E0E0)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("사진 없음", color = Color.Gray)
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -213,12 +193,19 @@ fun MapDetailScreen(
                         }
                         Spacer(modifier = Modifier.height(4.dp))
                     }
-                    // TODO: 더 많은 상세 정보 (리뷰 등) 추가
                 }
 
                 // 길찾기 버튼
                 Button(
-                    onClick = onFindRouteClick,
+                    onClick = {
+                        val destinationLatLng = place.geometry?.location?.let { loc ->
+                            LatLng(loc.lat ?: 0.0, loc.lng ?: 0.0)
+                        } ?: LatLng(0.0, 0.0)
+
+                        Log.d("MapDetailScreen", "Destination LatLng to pass: $destinationLatLng")
+
+                        onFindRouteClick(destinationLatLng)
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp)
@@ -226,6 +213,11 @@ fun MapDetailScreen(
                         .clip(RoundedCornerShape(8.dp))
                 ) {
                     Text(text = "길찾기", fontSize = 18.sp)
+                }
+            }
+            is PlaceDetailState.Error -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("오류: ${(placeDetailState as PlaceDetailState.Error).message}")
                 }
             }
             PlaceDetailState.Idle -> {

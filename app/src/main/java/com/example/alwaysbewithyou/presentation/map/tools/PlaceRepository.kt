@@ -1,10 +1,9 @@
 package com.example.alwaysbewithyou.presentation.map.tools
 
-import android.R.attr.apiKey
 import android.content.Context
 import android.content.pm.PackageManager
-import com.example.alwaysbewithyou.presentation.map.tools.GooglePlacesApiService
-import com.example.alwaysbewithyou.presentation.map.tools.GooglePlacesApiService.PlaceResult
+import com.example.alwaysbewithyou.presentation.map.api.GooglePlacesApiService
+import com.example.alwaysbewithyou.presentation.map.api.GooglePlacesApiService.PlaceResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -20,6 +19,13 @@ class PlaceRepository(
         )
         applicationInfo.metaData.getString("com.google.android.geo.API_KEY")
             ?: throw IllegalStateException("API_KEY not found in AndroidManifest.xml")
+    }
+
+    fun getPhotoUrl(photoReference: String): String {
+        return "https://maps.googleapis.com/maps/api/place/photo" +
+                "?maxwidth=600" +
+                "&photoreference=$photoReference" +
+                "&key=$apiKey"
     }
 
     suspend fun getPlaceDetails(placeId: String): PlaceResult? {
@@ -85,11 +91,11 @@ class PlaceRepository(
                     emptyList()
                 } else {
                     Timber.e("Google Places API Nearby Search Error: ${response.status} - ${response.error_message}")
-                    emptyList() // API 오류 시 빈 리스트 반환
+                    emptyList()
                 }
             } catch (e: Exception) {
                 Timber.e(e, "PlaceRepository 주변 검색 오류: ${e.localizedMessage}")
-                emptyList() // 예외 발생 시 빈 리스트 반환
+                emptyList()
             }
         }
     }
