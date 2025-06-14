@@ -1,5 +1,7 @@
 package com.example.alwaysbewithyou.presentation.navigation
 
+import com.example.alwaysbewithyou.presentation.map.TransportType
+
 sealed class Route(
     val route: String
 ) {
@@ -15,10 +17,27 @@ sealed class Route(
 
     data object Map: Route(route = "map")
 
-    data object MapList: Route(route = "mapList")
+    data object MapList : Route("mapList?currentLat={currentLat}&currentLng={currentLng}") {
+        fun createRoute(currentLat: Float?, currentLng: Float?) =
+            "mapList?currentLat=${currentLat ?: "null"}&currentLng=${currentLng ?: "null"}"
+    }
 
-    data object MapDetail: Route(route = "mapDetail/{placeId}") {
+    data object MapDetail : Route("mapDetail/{placeId}?startLat={startLat}&startLng={startLng}") {
         fun createRoute(placeId: String) = "mapDetail/$placeId"
+        fun createRouteWithStart(placeId: String, startLat: Float, startLng: Float) =
+            "mapDetail/$placeId?startLat=$startLat&startLng=$startLng"
+    }
+
+    data object MapRoute: Route(route = "mapRoute/{startLat}/{startLng}/{endLat}/{endLng}/{transportType}") {
+        fun createRoute(
+            startLat: Float,
+            startLng: Float,
+            endLat: Float,
+            endLng: Float,
+            transportType: TransportType
+        ): String {
+            return "mapRoute/$startLat/$startLng/$endLat/$endLng/${transportType.name}"
+        }
     }
 
     data object Call: Route(route = "call")

@@ -8,7 +8,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -44,8 +43,8 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
-import com.example.alwaysbewithyou.presentation.map.tools.MapViewModel
-import com.example.alwaysbewithyou.presentation.map.tools.SearchState
+import com.example.alwaysbewithyou.presentation.map.viewmodel.MapViewModel
+import com.example.alwaysbewithyou.presentation.map.viewmodel.SearchState
 import androidx.compose.runtime.collectAsState
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
@@ -55,8 +54,8 @@ import androidx.core.content.ContextCompat
 @Composable
 fun MapScreen(
     viewModel: MapViewModel,
-    onNavigateToMapList: () -> Unit,
-    onPlaceClick: (String) -> Unit
+    onNavigateToMapList: (Float, Float) -> Unit,
+    onPlaceClick: (String, LatLng?) -> Unit
 ) {
     val searchState by viewModel.searchResults.collectAsState()
     val searchText by viewModel.searchQuery.collectAsState()
@@ -77,7 +76,6 @@ fun MapScreen(
         )
     )
 
-    // 위치 권한 요청 런처
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -106,7 +104,6 @@ fun MapScreen(
         }
     }
 
-    // 앱 시작 시 위치 권한 요청 및 초기 위치 가져오기
     LaunchedEffect(Unit) {
         if (locationPermissionsState.allPermissionsGranted) {
             try {
@@ -138,7 +135,7 @@ fun MapScreen(
         }
     }
 
-    val singapore = LatLng(1.35, 103.87) // 기본값 (권한 없거나 위치 못 가져올 때)
+    val singapore = LatLng(1.35, 103.87) // 위치 기본값
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(currentLocation ?: singapore, 10f)
     }
@@ -163,7 +160,9 @@ fun MapScreen(
             trailingIcon = {
                 IconButton(onClick = {
                     viewModel.searchPlaces(searchText)
-                    onNavigateToMapList()
+                    currentLocation?.let {
+                        onNavigateToMapList(it.latitude.toFloat(), it.longitude.toFloat())
+                    }
                 }) {
                     Icon(Icons.Filled.Search, contentDescription = "검색")
                 }
@@ -174,17 +173,18 @@ fun MapScreen(
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(onSearch = {
                 viewModel.searchPlaces(searchText)
-                onNavigateToMapList()
+                currentLocation?.let {
+                    onNavigateToMapList(it.latitude.toFloat(), it.longitude.toFloat())
+                }
             })
         )
 
         // 지도 UI
         Box(
             modifier = Modifier
-                .weight(1f) // 남은 공간 모두 차지
+                .weight(1f)
                 .fillMaxWidth()
         ) {
-            // 위치 권한이 있다면 GoogleMap 표시, 없다면 권한 요청 메시지 표시
             if (locationPermissionsState.allPermissionsGranted) {
                 GoogleMap(
                     modifier = Modifier.fillMaxSize(),

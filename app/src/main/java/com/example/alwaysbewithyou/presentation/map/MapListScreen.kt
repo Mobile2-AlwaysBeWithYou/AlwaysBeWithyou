@@ -45,13 +45,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.alwaysbewithyou.presentation.map.tools.GooglePlacesApiService.PlaceResult
-import com.example.alwaysbewithyou.presentation.map.tools.MapViewModel
-import com.example.alwaysbewithyou.presentation.map.tools.SearchState
+import com.example.alwaysbewithyou.presentation.map.api.GooglePlacesApiService.PlaceResult
+import com.example.alwaysbewithyou.presentation.map.viewmodel.MapViewModel
+import com.example.alwaysbewithyou.presentation.map.viewmodel.SearchState
 import com.example.alwaysbewithyou.presentation.navigation.Route
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import kotlin.collections.sortedByDescending
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -65,6 +67,7 @@ import com.google.maps.android.compose.rememberCameraPositionState as rememberGo
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberMarkerState
+import android.location.Location as AndroidLocation // 충돌 방지를 위해 alias 사용
 
 fun fetchPlaceDetails(
     context: Context,
@@ -89,11 +92,12 @@ fun fetchPlaceDetails(
 fun MapListScreen(
     viewModel: MapViewModel,
     onNavigateBack: () -> Unit,
-    navController: NavHostController
+    navController: NavHostController,
+    currentLocation: LatLng?
 ) {
     var sortType by remember { mutableStateOf("거리순") }
+    val context = LocalContext.current
 
-    // 권한
     val permissionState = rememberMultiplePermissionsState(
         listOf(
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -103,26 +107,36 @@ fun MapListScreen(
 
     val granted = permissionState.permissions.any { it.status.isGranted }
 
-    // 지도 상태
-    val seoulCityHall = LatLng(37.5665, 126.9770)
+    val defaultLocation = LatLng(37.5665, 126.9770)
     val cameraPositionState: CameraPositionState = rememberGoogleCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(seoulCityHall, 15f)
+        position = CameraPosition.fromLatLngZoom(currentLocation ?: defaultLocation, 15f)
     }
 
     val searchResultsState by viewModel.searchResults.collectAsState()
 
     val places = (searchResultsState as? SearchState.Success)?.results
 
+    LaunchedEffect(places) {
+        if (!places.isNullOrEmpty()) {
+            val avgLat = places.mapNotNull { it.geometry?.location?.lat }.average()
+            val avgLng = places.mapNotNull { it.geometry?.location?.lng }.average()
+            val center = LatLng(avgLat, avgLng)
+            cameraPositionState.animate(
+                update = CameraUpdateFactory.newLatLngZoom(center, 14f),
+                durationMs = 1000
+            )
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
-        // 1. 지도 영역
+        // 지도
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(0.5f) // 전체 높이의 50%
+                .weight(0.5f)
                 .padding(horizontal = 12.dp, vertical = 8.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .background(Color(0xFFF5F5F5))
@@ -147,16 +161,23 @@ fun MapListScreen(
                         Marker(
                             state = rememberMarkerState(position = position),
                             title = place.name ?: "이름 없음",
-                            snippet = place.formattedAddress ?: "주소 없음"
-
+                            snippet = place.formattedAddress ?: "주소 없음",
+                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
                         )
                         Log.d("MapDebug", "Address: ${place.formattedAddress}")
                     }
                 }
+                currentLocation?.let {
+                    Marker(
+                        state = rememberMarkerState(position = it),
+                        title = "현재 위치",
+                        snippet = "내 위치"
+                    )
+                }
             }
         }
 
-        // 2. 정렬 토글 버튼
+        // 정렬 토글 버튼
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -166,11 +187,11 @@ fun MapListScreen(
             SortToggle(sortType = sortType, onSortChange = { sortType = it })
         }
 
-        // 3. 장소 리스트
+        // 장소 리스트
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(0.5f) // 나머지 50% 공간 차지
+                .weight(0.5f)
                 .padding(horizontal = 16.dp)
                 .background(
                     Color.White,
@@ -195,7 +216,25 @@ fun MapListScreen(
                 is SearchState.Success -> {
                     val sortedPlaces = when (sortType) {
                         "평점순" -> (places ?: emptyList()).sortedByDescending { it.rating ?: 0.0 }
-                        "거리순" -> places ?: emptyList() // TODO: 실제 거리순 정렬 로직 구현 필요
+                        "거리순" -> {
+                            currentLocation?.let { currentLoc ->
+                                (places ?: emptyList()).sortedBy { place ->
+                                    val placeLat = place.geometry?.location?.lat
+                                    val placeLng = place.geometry?.location?.lng
+                                    if (placeLat != null && placeLng != null) {
+                                        val results = FloatArray(1)
+                                        AndroidLocation.distanceBetween(
+                                            currentLoc.latitude, currentLoc.longitude,
+                                            placeLat, placeLng,
+                                            results
+                                        )
+                                        results[0]
+                                    } else {
+                                        Float.MAX_VALUE
+                                    }
+                                }
+                            } ?: (places ?: emptyList())
+                        }
                         else -> places ?: emptyList()
                     }
 
@@ -206,7 +245,13 @@ fun MapListScreen(
                             items(sortedPlaces) { place ->
                                 PlaceListItem(place = place) { selectedPlace ->
                                     selectedPlace.placeId?.let { placeId ->
-                                        navController.navigate(Route.MapDetail.createRoute(placeId))
+                                        navController.navigate(
+                                            Route.MapDetail.createRouteWithStart(
+                                                placeId,
+                                                currentLocation?.latitude?.toFloat() ?: 37.5408f,
+                                                currentLocation?.longitude?.toFloat() ?: 127.0793f
+                                            )
+                                        )
                                     }
                                 }
                             }
@@ -237,7 +282,6 @@ fun PlaceListItem(
     val context = LocalContext.current
     var detailedAddress by remember { mutableStateOf<String?>(null) }
 
-    // placeId로 상세 주소 요청
     LaunchedEffect(place.placeId) {
         place.placeId?.let { placeId ->
             fetchPlaceDetails(
@@ -288,8 +332,6 @@ fun PlaceListItem(
     }
 }
 
-
-// SortToggle 컴포저블
 @Composable
 fun SortToggle(sortType: String, onSortChange: (String) -> Unit) {
     Row(
