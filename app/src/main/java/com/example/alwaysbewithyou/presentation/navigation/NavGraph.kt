@@ -12,40 +12,39 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.alwaysbewithyou.BuildConfig
 import com.example.alwaysbewithyou.LoginScreen
 import com.example.alwaysbewithyou.data.viewmodel.DatabaseViewModel
 import com.example.alwaysbewithyou.presentation.call.CallScreen
 import com.example.alwaysbewithyou.presentation.call.ResultScreen
 import com.example.alwaysbewithyou.presentation.call.ReviewScreen
-import com.example.alwaysbewithyou.presentation.guardian.GuardianAddScreen
 import com.example.alwaysbewithyou.presentation.call.ScheduleScreen
+import com.example.alwaysbewithyou.presentation.guardian.GuardianAddScreen
 import com.example.alwaysbewithyou.presentation.guardian.GuardianScreen
 import com.example.alwaysbewithyou.presentation.home.HomeScreen
 import com.example.alwaysbewithyou.presentation.map.MapDetailScreen
 import com.example.alwaysbewithyou.presentation.map.MapListScreen
 import com.example.alwaysbewithyou.presentation.map.MapRouteScreen
 import com.example.alwaysbewithyou.presentation.map.MapScreen
+import com.example.alwaysbewithyou.presentation.map.TmapNetworkModule
+import com.example.alwaysbewithyou.presentation.map.TransportType
 import com.example.alwaysbewithyou.presentation.map.api.GoogleDirectionsApiService
 import com.example.alwaysbewithyou.presentation.map.api.GooglePlacesApiService
-import com.example.alwaysbewithyou.presentation.map.viewmodel.MapDetailViewModel
-import com.example.alwaysbewithyou.presentation.map.viewmodel.MapViewModel
+import com.example.alwaysbewithyou.presentation.map.tools.DirectionRepository
 import com.example.alwaysbewithyou.presentation.map.tools.PlaceRepository
+import com.example.alwaysbewithyou.presentation.map.viewmodel.MapDetailViewModel
 import com.example.alwaysbewithyou.presentation.map.viewmodel.MapRouteViewModel
+import com.example.alwaysbewithyou.presentation.map.viewmodel.MapViewModel
 import com.example.alwaysbewithyou.presentation.onboarding.SignUpScreen
 import com.example.alwaysbewithyou.presentation.onboarding.SplashScreen
 import com.example.alwaysbewithyou.presentation.setting.AnnouncementScreen
 import com.example.alwaysbewithyou.presentation.setting.FontSettingScreen
 import com.example.alwaysbewithyou.presentation.setting.InformationUpdateScreen
 import com.example.alwaysbewithyou.presentation.setting.MyPageScreen
-import com.google.android.gms.maps.model.LatLng
 import com.example.alwaysbewithyou.presentation.setting.NotificationSettingScreen
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import com.example.alwaysbewithyou.presentation.map.tools.DirectionRepository
-import com.example.alwaysbewithyou.presentation.map.TmapNetworkModule
-import com.example.alwaysbewithyou.presentation.map.TransportType
 
 
 @Composable
@@ -117,7 +116,7 @@ fun NavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = Route.Splash.route,
+        startDestination = Route.Guardian.route,
         modifier = modifier
     ) {
         composable(route = Route.Splash.route) {
@@ -293,6 +292,7 @@ fun NavGraph(
                 GuardianScreen(
                     onNavigateToAddPage = { navController.navigate(Route.GuardianAdd.route) },
                     viewModel = databaseViewModel,
+                    navController = navController,
                     userId = userId
                 )
             }
