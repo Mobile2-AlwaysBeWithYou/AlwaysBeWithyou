@@ -116,7 +116,7 @@ fun NavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = Route.Guardian.route,
+        startDestination = Route.Home.route,
         modifier = modifier
     ) {
         composable(route = Route.Splash.route) {
@@ -299,10 +299,12 @@ fun NavGraph(
         }
 
         composable(route = Route.GuardianAdd.route) {
+            val userId = FirebaseAuth.getInstance().currentUser?.uid.toString()
             GuardianAddScreen(
                 onNavigateToGuardian = {
                     navController.navigate(Route.Guardian.route)
                 },
+                userId = userId,
                 viewModel = databaseViewModel
             )
         }
