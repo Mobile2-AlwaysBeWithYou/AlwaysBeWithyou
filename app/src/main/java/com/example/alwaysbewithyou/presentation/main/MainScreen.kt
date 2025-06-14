@@ -1,6 +1,8 @@
 package com.example.alwaysbewithyou.presentation.main
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -12,6 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,6 +28,7 @@ import com.example.alwaysbewithyou.presentation.main.component.MainBottomBar
 import com.example.alwaysbewithyou.presentation.navigation.BottomNavItem
 import com.example.alwaysbewithyou.presentation.navigation.NavGraph
 import com.example.alwaysbewithyou.presentation.navigation.Route
+import androidx.compose.ui.res.colorResource
 
 @Composable
 fun MainScreen(
@@ -46,14 +51,20 @@ fun MainScreen(
             if (currentRoute in bottomNavItems.map { it.route }) {
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                        .shadow(8.dp, RoundedCornerShape(30.dp))
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color(0xFFFFF1E6)),
                 ) {
                     NavigationBar(
-                        containerColor = Color.Transparent
+                        containerColor = Color.Transparent,
+                        modifier = Modifier.height(135.dp),
+                        tonalElevation = 0.dp
                     ) {
                         bottomNavItems.forEach { item ->
+                            val isSelected = currentRoute == item.route
+
                             MainBottomBar(
-                                selected = currentRoute == item.route,
+                                selected = isSelected,
                                 onClick = {
                                     navController.navigate(item.route) {
                                         popUpTo(route = Route.Home.route) {
@@ -65,25 +76,39 @@ fun MainScreen(
                                     }
                                 },
                                 icon = {
-                                    Icon(
-                                        painter = painterResource(
-                                            if (item.route == currentRoute) {
-                                                item.selectedIcon
-                                            } else item.unselectedIcon
-                                        ),
-                                        contentDescription = item.label,
-                                        tint = Color.Unspecified
-                                    )
+                                    val scale = androidx.compose.animation.core.animateFloatAsState(
+                                        targetValue = if (isSelected) 1.2f else 1f,
+                                        animationSpec = androidx.compose.animation.core.tween(250)
+                                    ).value
+
+                                    androidx.compose.foundation.layout.Box(
+                                        modifier = Modifier
+                                            .scale(scale)
+                                            .clip(RoundedCornerShape(50))
+                                            .background(
+                                                if (isSelected) Color(0xFFFFD7BA)
+                                                else Color.Transparent
+                                            )
+                                            .padding(8.dp)
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(
+                                                if (isSelected) item.selectedIcon
+                                                else item.unselectedIcon
+                                            ),
+                                            contentDescription = item.label,
+                                            tint = Color.Unspecified
+                                        )
+                                    }
                                 },
                                 label = {
                                     Text(
-                                        text = item.label
+                                        text = item.label,
+                                        color = if (isSelected) Color.Black else Color.Gray
                                     )
                                 },
                                 colors = NavigationBarItemDefaults.colors(
-                                    indicatorColor = Color.Transparent,
-                                    //selectedTextColor = Green500,
-                                    //unselectedTextColor = Gray100
+                                    indicatorColor = Color.Transparent
                                 )
                             )
                         }
@@ -98,4 +123,3 @@ fun MainScreen(
         )
     }
 }
-
