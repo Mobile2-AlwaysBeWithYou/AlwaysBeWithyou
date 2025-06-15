@@ -1,9 +1,14 @@
 package com.example.alwaysbewithyou.presentation.main
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -12,23 +17,21 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.alwaysbewithyou.R
-import com.example.alwaysbewithyou.presentation.home.HomeScreen
 import com.example.alwaysbewithyou.presentation.main.component.MainBottomBar
 import com.example.alwaysbewithyou.presentation.navigation.BottomNavItem
 import com.example.alwaysbewithyou.presentation.navigation.NavGraph
 import com.example.alwaysbewithyou.presentation.navigation.Route
-import androidx.compose.ui.res.colorResource
 
 @Composable
 fun MainScreen(
@@ -51,17 +54,23 @@ fun MainScreen(
             if (currentRoute in bottomNavItems.map { it.route }) {
                 Box(
                     modifier = Modifier
-                        .shadow(8.dp, RoundedCornerShape(30.dp))
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(Color(0xFFFFF1E6)),
+                        .fillMaxWidth()
+                        .background(Color(0xFFFFF1E6))
+                        .height(100.dp),
+                    contentAlignment = Alignment.BottomCenter
                 ) {
                     NavigationBar(
                         containerColor = Color.Transparent,
-                        modifier = Modifier.height(135.dp),
+                        modifier = Modifier.height(100.dp),
                         tonalElevation = 0.dp
                     ) {
                         bottomNavItems.forEach { item ->
                             val isSelected = currentRoute == item.route
+
+                            val scale = animateFloatAsState(
+                                targetValue = if (isSelected) 1.1f else 1f,
+                                animationSpec = tween(250)
+                            ).value
 
                             MainBottomBar(
                                 selected = isSelected,
@@ -76,42 +85,44 @@ fun MainScreen(
                                     }
                                 },
                                 icon = {
-                                    val scale = androidx.compose.animation.core.animateFloatAsState(
-                                        targetValue = if (isSelected) 1.2f else 1f,
-                                        animationSpec = androidx.compose.animation.core.tween(250)
-                                    ).value
-
-                                    androidx.compose.foundation.layout.Box(
+                                    Box(
                                         modifier = Modifier
                                             .scale(scale)
-                                            .clip(RoundedCornerShape(50))
+                                            .clip(RoundedCornerShape(10))
+                                            .width(70.dp)
+                                            .height(70.dp)
                                             .background(
-                                                if (isSelected) Color(0xFFFFD7BA)
-                                                else Color.Transparent
-                                            )
-                                            .padding(8.dp)
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(
-                                                if (isSelected) item.selectedIcon
-                                                else item.unselectedIcon
+                                                if (isSelected) Color(0xFFFFD7BA) else Color.Transparent
                                             ),
-                                            contentDescription = item.label,
-                                            tint = Color.Unspecified
-                                        )
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                            Icon(
+                                                painter = painterResource(
+                                                    if (isSelected) item.selectedIcon else item.unselectedIcon
+                                                ),
+                                                contentDescription = item.label,
+                                                tint = Color.Unspecified,
+                                                modifier = Modifier
+                                                    .padding(bottom = 2.dp)
+                                                    .align(Alignment.CenterHorizontally)
+                                            )
+
+                                            Text(
+                                                text = item.label,
+                                                color = Color.Black,
+                                                fontSize = 12.sp
+                                            )
+                                        }
                                     }
                                 },
-                                label = {
-                                    Text(
-                                        text = item.label,
-                                        color = if (isSelected) Color.Black else Color.Gray
-                                    )
-                                },
+                                label = null,
                                 colors = NavigationBarItemDefaults.colors(
                                     indicatorColor = Color.Transparent
                                 )
                             )
                         }
+
                     }
                 }
             }
