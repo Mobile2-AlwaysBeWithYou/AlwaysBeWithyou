@@ -186,16 +186,6 @@ fun MyPageScreen(
             )
 
             SettingsItem(
-                title = "이용약관",
-                onClick = { /* Handle 이용약관 click */ }
-            )
-
-            SettingsItem(
-                title = "개인 정보 처리 방침",
-                onClick = { /* Handle 개인 정보 처리 방침 click */ }
-            )
-
-            SettingsItem(
                 title = "로그아웃",
                 onClick = {
                     FirebaseAuth.getInstance().signOut()

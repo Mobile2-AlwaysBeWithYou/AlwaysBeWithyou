@@ -116,7 +116,7 @@ fun NavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = Route.Home.route,
+        startDestination = Route.Splash.route,
         modifier = modifier
     ) {
         composable(route = Route.Splash.route) {

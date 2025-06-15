@@ -145,7 +145,7 @@ fun InformationUpdateScreen(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color.Black,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    modifier = Modifier.padding(bottom = 4.dp)
                 )
 
                 OutlinedTextField(
@@ -160,7 +160,7 @@ fun InformationUpdateScreen(
                     shape = RoundedCornerShape(8.dp)
                 )
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(5.dp))
 
                 // 나이 입력
                 Text(
@@ -168,7 +168,7 @@ fun InformationUpdateScreen(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color.Black,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    modifier = Modifier.padding(bottom = 4.dp)
                 )
 
                 OutlinedTextField(
@@ -184,7 +184,7 @@ fun InformationUpdateScreen(
                     shape = RoundedCornerShape(8.dp)
                 )
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(5.dp))
 
                 // 성별 선택
                 Text(
@@ -192,7 +192,7 @@ fun InformationUpdateScreen(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color.Black,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    modifier = Modifier.padding(bottom = 4.dp)
                 )
 
                 Box {
@@ -239,7 +239,7 @@ fun InformationUpdateScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(5.dp))
 
                 // 전화번호 입력
                 Text(
@@ -247,7 +247,7 @@ fun InformationUpdateScreen(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color.Black,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    modifier = Modifier.padding(bottom = 4.dp)
                 )
 
                 OutlinedTextField(
@@ -265,7 +265,7 @@ fun InformationUpdateScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         // 복용 약물 알림 설정 카드
         Card(
@@ -281,7 +281,7 @@ fun InformationUpdateScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp)
+                    .padding(10.dp)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -391,7 +391,7 @@ fun InformationUpdateScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(5.dp))
 
         // 정보 수정 버튼
         Button(
@@ -476,15 +476,18 @@ fun PillAlarmItem(
         )
 
         // 알림 아이콘
-        Image(
-            painter = painterResource(
-                id = if (isEnabled) R.drawable.ic_notification_on else R.drawable.ic_notification_off
-            ),
-            contentDescription = if (isEnabled) "알림 켜짐" else "알림 꺼짐",
-            modifier = Modifier
-                .size(20.dp)
-                .clickable { onToggleEnabled() }
-        )
+
+        Box(modifier = Modifier.width(40.dp)){
+            Image(
+                painter = painterResource(
+                    id = if (isEnabled) R.drawable.ic_notification_on else R.drawable.ic_notification_off
+                ),
+                contentDescription = if (isEnabled) "알림 켜짐" else "알림 꺼짐",
+                modifier = Modifier
+                    .size(20.dp)
+                    .clickable { onToggleEnabled() }
+            )
+        }
     }
 }
 
