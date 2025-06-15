@@ -14,8 +14,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -24,9 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -51,7 +46,6 @@ fun GuardianScreen(
     val context = LocalContext.current
     val user by viewModel.user.collectAsState()
     val guardians by viewModel.guardianWards.collectAsState()
-    var showMenu by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.loadUser(userId)
@@ -126,29 +120,11 @@ fun GuardianScreen(
         ) {
             Box {
                 FloatingActionButton(
-                    onClick = { showMenu = !showMenu },
+                    onClick = { onNavigateToAddPage() },
                     containerColor = Color(0xFFFFF1E6),
                     modifier = Modifier.shadow(2.dp, shape = CircleShape)
                 ) {
                     Icon(Icons.Default.Add, contentDescription = "추가", tint = Color.Black)
-                }
-
-                DropdownMenu(
-                    expanded = showMenu,
-                    onDismissRequest = { showMenu = false },
-                    modifier = Modifier.background(Color.White)
-                ) {
-                    DropdownMenuItem(
-                        text = { Text("기존 연락처로 추가하기") },
-                        onClick = { showMenu = false }
-                    )
-                    DropdownMenuItem(
-                        text = { Text("새로 추가하기") },
-                        onClick = {
-                            showMenu = false
-                            onNavigateToAddPage()
-                        }
-                    )
                 }
             }
         }
