@@ -16,7 +16,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -58,7 +57,6 @@ fun GuardianScreen(
             modifier = modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top
         ) {
-            // 사용자 프로필 위 백버튼 있는 부분
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -66,14 +64,6 @@ fun GuardianScreen(
                     .padding(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Image(
-                            painter = painterResource(R.drawable.arrow_back),
-                            contentDescription = "arrow back"
-                        )
-                    }
-                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 

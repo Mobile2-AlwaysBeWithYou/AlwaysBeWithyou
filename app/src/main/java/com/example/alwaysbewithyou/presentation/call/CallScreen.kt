@@ -1,9 +1,7 @@
 package com.example.alwaysbewithyou.presentation.call
 
-import android.R.attr.fontWeight
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,17 +15,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,7 +31,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavHostController
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,19 +40,19 @@ fun CallScreen(
     navController: NavHostController
 ) {
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("위로 가기", fontSize = 16.sp) },
-                navigationIcon = {
-                    IconButton(onClick = { }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFE8E8E8)
-                )
-            )
-        }
+//        topBar = {
+//            TopAppBar(
+//                title = { Text("뒤로 가기", fontSize = 16.sp) },
+//                navigationIcon = {
+//                    IconButton(onClick = { }) {
+//                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+//                    }
+//                },
+//                colors = TopAppBarDefaults.topAppBarColors(
+//                    containerColor = Color(0xFFE8E8E8)
+//                )
+//            )
+//        }
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -91,7 +84,7 @@ fun CallScreen(
                 val context = LocalContext.current
                 MenuCard(
                     title = "전화 요청",
-                    subtitle = "사랑안는집핑 연결",
+                    subtitle = "사랑잇는전화 사이트로 연결",
                     onClick = {
                         val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.1661-2129.or.kr/"))
                         context.startActivity(intent)
