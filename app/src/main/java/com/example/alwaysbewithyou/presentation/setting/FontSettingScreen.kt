@@ -107,27 +107,44 @@ fun FontSettingScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        TopAppBar(
-            title = {
-                Text(
-                    text = "글씨크기",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.Black
+
+
+        Box(
+            modifier = Modifier
+                .height(70.dp)
+                .fillMaxWidth(),
+            contentAlignment = Alignment.CenterStart
+        ){
+            IconButton(onClick = {navController.popBackStack()}) {
+                Image(
+                    painter = painterResource(R.drawable.arrow_back),
+                    contentDescription = "arrow back"
                 )
-            },
-            navigationIcon = {
-                IconButton(onClick = {navController.popBackStack()}) {
-                    Image(
-                        painter = painterResource(R.drawable.arrow_back),
-                        contentDescription = "arrow back"
-                    )
-                }
-            },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = Color.White
-            )
-        )
+            }
+            Text("       글씨크기", fontSize = 20.sp,fontWeight = FontWeight.Medium)
+        }
+
+//        TopAppBar(
+//            title = {
+//                Text(
+//                    text = "글씨크기",
+//                    fontSize = 18.sp,
+//                    fontWeight = FontWeight.Medium,
+//                    color = Color.Black
+//                )
+//            },
+//            navigationIcon = {
+//                IconButton(onClick = {navController.popBackStack()}) {
+//                    Image(
+//                        painter = painterResource(R.drawable.arrow_back),
+//                        contentDescription = "arrow back"
+//                    )
+//                }
+//            },
+//            colors = TopAppBarDefaults.topAppBarColors(
+//                containerColor = Color.White
+//            )
+//        )
 
         Card(
             modifier = Modifier
