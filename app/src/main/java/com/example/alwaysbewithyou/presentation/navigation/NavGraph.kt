@@ -345,10 +345,11 @@ fun NavGraph(
 
         composable(route = Route.Announcement.route) {
             AnnouncementScreen(
-                navController = navController
-
+                navController = navController,
+                viewModel = databaseViewModel
             )
         }
+
 
         composable(route = Route.HomeDetail.route) {
             //HomeDetailScreen()
