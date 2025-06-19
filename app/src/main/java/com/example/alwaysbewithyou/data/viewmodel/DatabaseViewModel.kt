@@ -1,9 +1,11 @@
 package com.example.alwaysbewithyou.data.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.alwaysbewithyou.data.repository.FirestoreRepository
 import com.example.dbtest.data.CheckIn
 import com.example.dbtest.data.Consultation
+import com.example.dbtest.data.FontSize
 import com.example.dbtest.data.GuardianWard
 import com.example.dbtest.data.Notification
 import com.example.dbtest.data.PillAlarm
@@ -11,6 +13,12 @@ import com.example.dbtest.data.Settings
 import com.example.dbtest.data.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.SharingStarted
+
+
 
 class DatabaseViewModel : ViewModel() {
 
@@ -147,6 +155,15 @@ class DatabaseViewModel : ViewModel() {
         FirestoreRepository.setUserSettings(userId, settings)
         loadSettings(userId)
     }
+
+    val fontSizeEnum: StateFlow<FontSize> = settings
+        .filterNotNull()
+        .map { FontSize.fromString(it.font_size) }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            FontSize.MEDIUM
+        )
 
     // 보호자 정보
     private val _guardianWards = MutableStateFlow<List<GuardianWard>>(emptyList())
