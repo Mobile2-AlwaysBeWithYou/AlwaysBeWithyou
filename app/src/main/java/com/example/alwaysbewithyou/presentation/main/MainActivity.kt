@@ -35,7 +35,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.alwaysbewithyou.R
 import com.example.alwaysbewithyou.presentation.navigation.Route
 import com.example.alwaysbewithyou.ui.theme.AlwaysBeWithYouTheme
-import com.google.android.libraries.places.api.Places
 import java.util.Date
 import java.util.Locale
 
@@ -51,19 +50,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        val apiKey = try {
-            val appInfo = packageManager.getApplicationInfo(packageName, android.content.pm.PackageManager.GET_META_DATA)
-            appInfo.metaData.getString("com.google.android.geo.API_KEY")
-        } catch (e: Exception) {
-            null
-        }
-
-        apiKey?.let {
-            if (!Places.isInitialized()) {
-                Places.initialize(applicationContext, it)
-            }
-        }
 
         //알림 권한 요청
         requestPermissionLauncher = registerForActivityResult(
@@ -94,34 +80,37 @@ class MainActivity : ComponentActivity() {
         setContent {
             AlwaysBeWithYouTheme {
                 val navController = rememberNavController()
-                var showConfirmation by remember { mutableStateOf(fromNotification) }
+                var currentScreen by remember {
+                    mutableStateOf(if (fromNotification) "confirm" else "main")
+                }
 
-                LaunchedEffect(fromNotification) {
-                    //알림 클릭 로직
-                    if (fromNotification) {
-                        NotificationManagerCompat.from(this@MainActivity).cancelAll()
+                // confirm → goToHomeViaMain → main
+                LaunchedEffect(currentScreen) {
+                    if (currentScreen == "goToHomeViaMain") {
+                        navController.navigate(Route.Home.route) {
+                            popUpTo(0)
+                        }
+                        currentScreen = "main"
                     }
                 }
 
-                // 확인 화면 표시 여부에 따라 UI 선택
-                if (showConfirmation) {
-                    NotificationConfirmationScreen(
+                when (currentScreen) {
+                    "confirm" -> NotificationConfirmationScreen(
                         onConfirm = {
-                            showConfirmation = false
-                            // 통지 카운터 리셋 및 알림 타이머 재설정
                             notificationCount = 0
                             resetNotificationTimer()
+                            currentScreen = "goToHomeViaMain"
                         }
                     )
-                } else {
-                    MainScreen(navController = navController)
+
+                    else -> MainScreen(navController = navController)
                 }
             }
         }
 
         //앱 실행 시 알림 예약
         if (!fromNotification) {
-            scheduleCustomNotification(delayMillis = 10_000L)
+            scheduleCustomNotification(delayMillis = 60_000L)
         }
     }
 
@@ -130,7 +119,7 @@ class MainActivity : ComponentActivity() {
         if (::notificationHandler.isInitialized && ::notificationRunnable.isInitialized) {
             notificationHandler.removeCallbacks(notificationRunnable)
         }
-        scheduleCustomNotification(delayMillis = 10_000L)
+        scheduleCustomNotification(delayMillis = 60_000L)
     }
 
     //알림 채널 생성
@@ -172,7 +161,7 @@ class MainActivity : ComponentActivity() {
                 val (title, message) = when {
                     notificationCount == 1 -> Pair(
                         "늘곁에  $currentTime",
-                        "10초동안 응답하지 않으셨어요!\n무슨 일 있으신가요?\n곧 보호자에게 자동으로 연락이 가요.\n앱에 접속하시려면 탭해주세요."
+                        "1분 동안 응답하지 않으셨어요!\n무슨 일 있으신가요?\n곧 보호자에게 자동으로 연락이 가요.\n앱에 접속하시려면 탭해주세요."
                     )
                     else -> Pair(
                         "미확인 알림 (${notificationCount} 번째)",
@@ -201,7 +190,7 @@ class MainActivity : ComponentActivity() {
                 }
 
                 //알림 재발동 보장
-                notificationHandler.postDelayed(this, 10_000L)
+                notificationHandler.postDelayed(this, 60_000L)
             }
         }
 
@@ -261,7 +250,7 @@ fun NotificationConfirmationScreen(
 
                 // 부제목
                 Text(
-                    text = "4시간후에 다시 알림 예정",
+                    text = "1분 후에 다시 알림 예정",
                     fontSize = 14.sp,
                     color = Color.Gray,
                     textAlign = TextAlign.Center
