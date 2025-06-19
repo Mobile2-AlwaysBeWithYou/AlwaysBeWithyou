@@ -56,27 +56,22 @@ fun ResultScreen(
                 .fillMaxSize()
                 .background(Color(0xFFF8F9FA))
         ) {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "상담 신청",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color.Black
+            Box(
+                modifier = Modifier
+                    .height(70.dp)
+                    .fillMaxWidth()
+                    .background(Color(0xFFE8E8E8)),
+                contentAlignment = Alignment.CenterStart
+            ){
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Image(
+                        painter = painterResource(R.drawable.arrow_back),
+                        contentDescription = "arrow back"
                     )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Image(
-                            painter = painterResource(R.drawable.arrow_back),
-                            contentDescription = "arrow back"
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFE8E8E8)
-                )
-            )
+                }
+                Text("       상담 신청", fontSize = 20.sp,fontWeight = FontWeight.Medium)
+            }
+
 
             // Main Content
             if (latestConsultation != null) {

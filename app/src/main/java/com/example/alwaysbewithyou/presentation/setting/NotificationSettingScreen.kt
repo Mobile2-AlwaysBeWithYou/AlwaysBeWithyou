@@ -2,6 +2,7 @@ package com.example.alwaysbewithyou.presentation.setting
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -90,27 +91,43 @@ fun NotificationSettingScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
-        TopAppBar(
-            title = {
-                Text(
-                    text = "알림",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.Black
+
+        Box(
+            modifier = Modifier
+                .height(70.dp)
+                .fillMaxWidth(),
+            contentAlignment = Alignment.CenterStart
+        ){
+            IconButton(onClick = {navController.popBackStack()}) {
+                Image(
+                    painter = painterResource(R.drawable.arrow_back),
+                    contentDescription = "arrow back"
                 )
-            },
-            navigationIcon = {
-                IconButton(onClick = {navController.popBackStack()}) {
-                    Image(
-                        painter = painterResource(R.drawable.arrow_back),
-                        contentDescription = "arrow back"
-                    )
-                }
-            },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = Color.White
-            )
-        )
+            }
+            Text("       알림", fontSize = 20.sp,fontWeight = FontWeight.Medium)
+        }
+
+//        TopAppBar(
+//            title = {
+//                Text(
+//                    text = "알림",
+//                    fontSize = 18.sp,
+//                    fontWeight = FontWeight.Medium,
+//                    color = Color.Black
+//                )
+//            },
+//            navigationIcon = {
+//                IconButton(onClick = {navController.popBackStack()}) {
+//                    Image(
+//                        painter = painterResource(R.drawable.arrow_back),
+//                        contentDescription = "arrow back"
+//                    )
+//                }
+//            },
+//            colors = TopAppBarDefaults.topAppBarColors(
+//                containerColor = Color.White
+//            )
+//        )
 
         Spacer(modifier = Modifier.height(16.dp))
 

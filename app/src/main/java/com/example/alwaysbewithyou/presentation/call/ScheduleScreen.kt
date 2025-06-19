@@ -137,28 +137,23 @@ fun ScheduleScreen(
                     .fillMaxSize()
                     .background(Color(0xFFF8F9FA))
             ) {
-                // Top App Bar
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = "상담/전화",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.Black
+
+                Box(
+                    modifier = Modifier
+                        .height(70.dp)
+                        .fillMaxWidth()
+                        .background(Color(0xFFE8E8E8)),
+                    contentAlignment = Alignment.CenterStart
+                ){
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Image(
+                            painter = painterResource(R.drawable.arrow_back),
+                            contentDescription = "arrow back"
                         )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = { navController.popBackStack() }) {
-                            Image(
-                                painter = painterResource(R.drawable.arrow_back),
-                                contentDescription = "arrow back"
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color(0xFFE8E8E8)
-                    )
-                )
+                    }
+                    Text("       상담/전화", fontSize = 20.sp,fontWeight = FontWeight.Medium)
+                }
+
 
                 // Main Content
                 Column(
@@ -349,7 +344,7 @@ fun CalendarDay(
             .background(
                 color = when {
                     isSelected && date != null -> Color(0xFF4FC3F7)
-                    isToday && date != null -> Color(0xFF2196F3)
+//                    isToday && date != null -> Color(0xFF2196F3)
                     isPastDate -> Color(0xFFF5F5F5)
                     else -> Color.Transparent
                 },
@@ -363,7 +358,7 @@ fun CalendarDay(
                 fontSize = 14.sp,
                 color = when {
                     isSelected -> Color.White
-                    isToday -> Color.White
+//                    isToday -> Color.White
                     isPastDate -> Color(0xFFBDBDBD)
                     else -> Color.Black
                 },
