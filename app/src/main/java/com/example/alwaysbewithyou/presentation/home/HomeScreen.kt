@@ -21,6 +21,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -39,12 +41,14 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.alwaysbewithyou.data.viewmodel.DatabaseViewModel
 import com.example.alwaysbewithyou.presentation.guardian.GuardianScreen
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(viewModel: DatabaseViewModel) {
     val currentTime = remember {
         val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
         sdf.format(Date())
@@ -58,6 +62,7 @@ fun HomeScreen() {
         bottomSheetState = bottomSheetState
     )
     val coroutineScope = rememberCoroutineScope()
+    val fontSize by viewModel.fontSizeEnum.collectAsState()
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
@@ -91,7 +96,7 @@ fun HomeScreen() {
 
                 Text(
                     text = "마지막 접속 시간\n${currentTime}",
-                    fontSize = 20.sp,
+                    fontSize = fontSize.navBarSize,
                     color = Color(0xFFD4822A),
                     fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Center
