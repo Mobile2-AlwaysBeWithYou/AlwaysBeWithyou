@@ -149,7 +149,7 @@ fun NavGraph(
         }
 
         composable(route = Route.Home.route) {
-            HomeScreen()
+            HomeScreen(viewModel = databaseViewModel)
         }
 
         composable(route = Route.Map.route) {

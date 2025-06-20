@@ -34,13 +34,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.fontResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.alwaysbewithyou.R
 import com.example.alwaysbewithyou.data.viewmodel.DatabaseViewModel
+import com.example.dbtest.data.FontSize
 import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,6 +58,7 @@ fun MyPageScreen(
 
     val currentUser by databaseViewModel.user.collectAsState()
     val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+    val fontSize by databaseViewModel.fontSizeEnum.collectAsState()
     LaunchedEffect(currentUserId) {
         if (currentUserId.isNotEmpty()) {
             databaseViewModel.loadUser(currentUserId)
@@ -157,17 +161,20 @@ fun MyPageScreen(
         ) {
             SettingsItem(
                 title = "알림",
-                onClick = {navController.navigate("notificationSetting")}
+                onClick = {navController.navigate("notificationSetting")},
+                fontSize = fontSize
             )
 
             SettingsItem(
                 title = "글씨크기",
-                onClick = {navController.navigate("fontSetting")}
+                onClick = {navController.navigate("fontSetting")},
+                fontSize = fontSize
             )
 
             SettingsItem(
                 title = "공지사항",
-                onClick = {navController.navigate("announcement")}
+                onClick = {navController.navigate("announcement")},
+                fontSize = fontSize
             )
 
             SettingsItem(
@@ -175,7 +182,8 @@ fun MyPageScreen(
                 onClick = {
                     FirebaseAuth.getInstance().signOut()
                     onLogout()
-                }
+                },
+                fontSize = fontSize
             )
         }
     }
@@ -184,7 +192,8 @@ fun MyPageScreen(
 @Composable
 fun SettingsItem(
     title: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    fontSize: FontSize
 ) {
     Card(
         modifier = Modifier
@@ -205,7 +214,7 @@ fun SettingsItem(
         ) {
             Text(
                 text = title,
-                fontSize = 16.sp,
+                fontSize = fontSize.navBarSize,
                 color = Color.Black,
                 fontWeight = FontWeight.Normal
             )
