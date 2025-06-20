@@ -1,5 +1,7 @@
 package com.example.alwaysbewithyou.presentation.guardian
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -84,40 +88,46 @@ fun GuardianScreen(
                 }
             }
 
-            // 보호자 카드 리스트
             Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(top = 10.dp)
+                modifier = modifier
+                    .fillMaxSize()
                     .background(Color.White)
-            ) {
-                guardians.forEach { ward ->
-//                            GuardianCard(
-//                                name = ward.guardian_name,
-//                                relation = ward.relation,
-//                                onCallClick = {
-//                                    // 전화 기능 처리
-//                                }
-//                            )
+            ) {// 보호자 카드 리스트
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(top = 10.dp)
+                        .padding(bottom = 80.dp)
+                ) {
+                    items(items = guardians) { ward ->
+                        GuardianCard(
+                            name = ward.guardian_name,
+                            relation = ward.relation,
+                            onCallClick = {
+                                // 전화 기능 처리
+                                val intent = Intent(Intent.ACTION_DIAL).apply {
+                                    data = Uri.parse("tel:${ward.phone}")
+                                }
+                                context.startActivity(intent)
+                            }
+                        )
+                    }
                 }
             }
         }
 
-        Box(
+        // 화면 하단에 고정된 FAB
+        FloatingActionButton(
+            onClick = { onNavigateToAddPage() },
+            containerColor = Color(0xFFFFF1E6),
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 91.dp, end = 16.dp)
+                .padding(bottom = 24.dp)
+                .shadow(2.dp, shape = CircleShape)
         ) {
-            Box {
-                FloatingActionButton(
-                    onClick = { onNavigateToAddPage() },
-                    containerColor = Color(0xFFFFF1E6),
-                    modifier = Modifier.shadow(2.dp, shape = CircleShape)
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = "추가", tint = Color.Black)
-                }
-            }
+            Icon(Icons.Default.Add, contentDescription = "추가", tint = Color.Black)
         }
+
     }
 }
 
