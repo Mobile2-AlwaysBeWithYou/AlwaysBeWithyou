@@ -36,14 +36,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.alwaysbewithyou.R
+import com.example.alwaysbewithyou.data.viewmodel.DatabaseViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.alwaysbewithyou.data.viewmodel.DatabaseViewModel
-import com.example.alwaysbewithyou.presentation.guardian.GuardianScreen
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -92,7 +89,7 @@ fun HomeScreen(viewModel: DatabaseViewModel) {
                     )
                 }
 
-                Spacer(modifier = Modifier.height(30.dp))
+                Spacer(modifier = Modifier.height(50.dp))
 
                 Text(
                     text = "마지막 접속 시간\n${currentTime}",
@@ -145,7 +142,7 @@ fun HomeScreen(viewModel: DatabaseViewModel) {
                 },
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(150.dp))
 
             Text(
                 text = "오늘도 괜찮으신가요?",
@@ -156,7 +153,7 @@ fun HomeScreen(viewModel: DatabaseViewModel) {
                 modifier = Modifier.padding(horizontal = 24.dp)
             )
 
-            Spacer(modifier = Modifier.height(60.dp))
+            Spacer(modifier = Modifier.height(70.dp))
 
             Box(
                 modifier = Modifier
@@ -182,6 +179,7 @@ fun HomeScreen(viewModel: DatabaseViewModel) {
                     contentScale = ContentScale.FillWidth
                 )
             }
+
         }
     }
 }
