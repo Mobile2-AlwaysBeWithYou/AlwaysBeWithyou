@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.alwaysbewithyou.data.viewmodel.DatabaseViewModel
 import com.example.alwaysbewithyou.presentation.map.viewmodel.MapDetailViewModel
 import com.example.alwaysbewithyou.presentation.map.viewmodel.PlaceDetailState
 import com.google.android.gms.maps.model.LatLng
@@ -38,9 +39,12 @@ fun MapDetailScreen(
     modifier: Modifier = Modifier,
     mapDetailViewModel: MapDetailViewModel,
     onNavigateBack: () -> Unit,
-    onFindRouteClick: (LatLng) -> Unit
+    onFindRouteClick: (LatLng) -> Unit,
+    databaseViewModel: DatabaseViewModel
 ) {
     val placeDetailState by mapDetailViewModel.placeDetail.collectAsState()
+
+    val fontSize by databaseViewModel.fontSizeEnum.collectAsState()
 
     LaunchedEffect(placeId) {
         if (placeId != null) {
@@ -68,6 +72,7 @@ fun MapDetailScreen(
             }
             Text(
                 text = "뒤로가기",
+                fontSize = fontSize.buttonSize,
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(start = 4.dp)
             )
@@ -208,11 +213,11 @@ fun MapDetailScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp)
+                        .height(70.dp)
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                         .clip(RoundedCornerShape(8.dp))
                 ) {
-                    Text(text = "길찾기", fontSize = 18.sp)
+                    Text(text = "길찾기", fontSize = fontSize.buttonSize)
                 }
             }
             is PlaceDetailState.Error -> {

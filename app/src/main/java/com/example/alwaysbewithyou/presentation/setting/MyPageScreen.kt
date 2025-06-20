@@ -127,7 +127,7 @@ fun MyPageScreen(
                         color = Color.Black
                     )
                     Text(
-                        text = "나이 : ${currentUser?.age}세 성별 : ${currentUser?.gender}",
+                        text = "나이 : ${currentUser?.age}세\n성별 : ${currentUser?.gender}",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.padding(4.dp)
