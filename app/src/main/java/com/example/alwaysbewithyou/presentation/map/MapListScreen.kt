@@ -190,7 +190,6 @@ fun MapListScreen(
                         Marker(
                             state = rememberMarkerState(position = position),
                             title = place.name ?: "이름 없음",
-                            snippet = place.formattedAddress ?: "주소 없음",
                             icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
                         )
                         Log.d("MapDebug", "Address: ${place.formattedAddress}")

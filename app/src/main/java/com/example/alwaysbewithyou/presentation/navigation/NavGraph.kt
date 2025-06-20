@@ -241,7 +241,8 @@ fun NavGraph(
                             TransportType.TRANSIT
                         )
                     )
-                }
+                },
+                databaseViewModel = databaseViewModel
             )
         }
 
