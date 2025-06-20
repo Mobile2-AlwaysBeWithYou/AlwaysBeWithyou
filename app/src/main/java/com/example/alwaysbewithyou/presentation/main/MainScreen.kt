@@ -16,6 +16,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,27 +25,35 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.alwaysbewithyou.R
+import com.example.alwaysbewithyou.data.viewmodel.DatabaseViewModel
 import com.example.alwaysbewithyou.presentation.main.component.MainBottomBar
 import com.example.alwaysbewithyou.presentation.navigation.BottomNavItem
 import com.example.alwaysbewithyou.presentation.navigation.NavGraph
 import com.example.alwaysbewithyou.presentation.navigation.Route
+import com.example.dbtest.data.FontSize
 
 @Composable
 fun MainScreen(
     navController: NavHostController,
+    databaseViewModel: DatabaseViewModel,
     modifier: Modifier = Modifier
 ) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     var currentRoute = currentBackStackEntry?.destination?.route
+    val fontSize by databaseViewModel.fontSizeEnum.collectAsState()
 
     val bottomNavItems = listOf(
         BottomNavItem("홈", Route.Home.route, R.drawable.home_selected, R.drawable.home),
         BottomNavItem("지도", Route.Map.route, R.drawable.map_selected, R.drawable.map),
-        BottomNavItem("상담·전화", Route.Call.route, R.drawable.call_selected, R.drawable.call),
+        BottomNavItem(
+            if (fontSize == FontSize.EXTRA_LARGE) "상담" else "상담·전화", // 조건 분기
+            Route.Call.route,
+            R.drawable.call_selected,
+            R.drawable.call
+        ),
         BottomNavItem("보호자", Route.Guardian.route, R.drawable.heart_selected, R.drawable.heart),
         BottomNavItem("설정", Route.Setting.route, R.drawable.setting_selected, R.drawable.setting)
     )
@@ -111,7 +120,7 @@ fun MainScreen(
                                             Text(
                                                 text = item.label,
                                                 color = Color.Black,
-                                                fontSize = 12.sp
+                                                fontSize = fontSize.navBarSize
                                             )
                                         }
                                     }
